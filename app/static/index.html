@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>You.fyi</title>
+  <link rel="stylesheet" href="/ui/style.css" />
+</head>
+
+<body>
+  <div class="app">
+    <div class="topbar">
+      <h1>You.fyi</h1>
+      <div class="controls">
+        <a href="/docs" class="small muted">API Docs</a>
+      </div>
+    </div>
+    <div class="container">
+      <aside class="panel sidebar">
+        <h3>Workspace</h3>
+        <div class="form-control">
+          <label for="ws-name" class="small muted">Workspace Name</label>
+          <input id="ws-name" placeholder="e.g. My Project" value="" />
+        </div>
+        <div class="form-control">
+          <label for="ws-desc" class="small muted">Description</label>
+          <input id="ws-desc" placeholder="A brief description" value="Workspace for quick testing" />
+        </div>
+        <div class="form-control">
+          <button id="create-ws">Create Workspace</button>
+        </div>
+        <div class="form-control">
+          <label for="ws-id" class="small muted">Or set from ID</label>
+          <div style="display: flex; gap: 8px;">
+            <input id="ws-id" placeholder="Existing workspace id" />
+            <button id="set-ws" class="secondary">Set</button>
+          </div>
+        </div>
+        <div class="form-control">
+          <div class="muted small">Active Workspace ID:</div>
+          <pre id="ws-result" class="small"></pre>
+        </div>
+        <pre id="message" class="small"></pre>
+
+        <hr />
+        <h3>Kits</h3>
+        <div class="kit-list" id="kits"></div>
+        <div style="margin-top:16px">
+          <button id="create-kit" class="secondary">Create New Kit</button>
+        </div>
+      </aside>
+
+      <main class="panel">
+        <section>
+          <h2>Create Text Asset</h2>
+          <div class="form-control">
+            <label for="asset-name" class="small muted">Asset Name</label>
+            <input id="asset-name" placeholder="Asset name" value="Intro Doc" />
+          </div>
+          <div class="form-control">
+            <label for="asset-desc" class="small muted">Description</label>
+            <input id="asset-desc" placeholder="Description" value="Intro created from UI" />
+          </div>
+          <div class="form-control">
+            <label for="asset-content" class="small muted">Content</label>
+            <textarea id="asset-content" rows="4">This is sample content to demonstrate You.fyi from the UI</textarea>
+          </div>
+          <div class="form-control"><button id="create-asset">Create Text Asset</button></div>
+          <pre id="asset-result" class="small"></pre>
+        </section>
+
+        <section>
+          <h2>Upload File</h2>
+          <div class="form-control">
+            <label for="upload-file" class="small muted">Choose File</label>
+            <input type="file" id="upload-file" />
+          </div>
+          <div class="form-control">
+            <label for="upload-name" class="small muted">File name (optional)</label>
+            <input id="upload-name" placeholder="File name (optional)" />
+          </div>
+          <div class="form-control"><button id="upload-btn">Upload File</button></div>
+          <pre id="upload-result" class="small"></pre>
+        </section>
+
+        <section>
+          <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2>Assets</h2>
+            <div class="controls" style="display:flex; gap: 8px;">
+              <button id="refresh-assets" class="secondary">Refresh</button>
+              <button id="add-assets" class="secondary">Add Selected To Kit</button>
+              <button id="create-share" class="secondary">Create Sharing Link</button>
+            </div>
+          </div>
+          <div id="assets" class="assets-list"></div>
+        </section>
+
+        <section>
+          <h2>RAG Query</h2>
+          <div class="form-control">
+            <label for="rag-query" class="small muted">Query</label>
+            <input id="rag-query" placeholder="Ask something about assets" value="Give a short summary of the assets" />
+          </div>
+          <div class="form-control">
+            <label class="small muted">Quick Actions</label>
+            <div>
+              <button type="button" id="toggle-quick-actions" class="secondary"
+                style="width:100%; text-align:left; display:flex; justify-content:space-between; align-items:center">
+                <span>Show Quick Actions</span>
+                <span id="qa-arrow">▼</span>
+              </button>
+            </div>
+            <div id="quick-actions-menu"
+              style="display:none; margin-top:8px; padding:8px; border:1px solid #eee; border-radius:4px; background:#fafafa">
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" id="quick-query-count" class="secondary">Count Assets</button>
+                <button type="button" id="quick-query-types" class="secondary">File Types</button>
+                <button type="button" id="quick-query-recent" class="secondary">Recent Files</button>
+                <button type="button" id="quick-query-summary" class="secondary">Basic Summary</button>
+                <button type="button" id="quick-query-largest" class="secondary">Largest Files</button>
+                <button type="button" id="quick-query-pdfs" class="secondary">List PDFs</button>
+                <button type="button" id="quick-query-images" class="secondary">List Images</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-control">
+            <label for="llm-model" class="small muted">LLM Model (Advanced Queries)</label>
+            <select id="llm-model">
+              <option value="gemini-pro" selected>Gemini Pro</option>
+              <option value="synthetic-grok" disabled>Synthetic Grok (Coming Soon)</option>
+              <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+            </select>
+          </div>
+          <label class="small"><input type="checkbox" id="use-llm" checked /> Use LLM</label>
+          <div style="margin-top:8px"><button id="run-rag">Run RAG</button></div>
+
+          <!-- Product Cards Container -->
+          <div id="product-results" class="assets-list" style="margin-top:16px; display:none"></div>
+
+          <pre id="rag-result" class="small"></pre>
+        </section>
+
+        <footer style="margin-top:14px;text-align:right">
+          <small class="muted">Minimal UI — for non-technical clients use this or Postman. Docs: <a
+              href="/docs">/docs</a></small>
+          <p class="small muted" style="margin-top: 1rem;">
+            Note: Some errors shown in the browser's developer console may originate from browser extensions and can be
+            safely ignored.
+          </p>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <script src="/ui/app.js"></script>
+</body>
+
+</html>

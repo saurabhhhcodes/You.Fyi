@@ -1,0 +1,36 @@
+nohup: ignoring input
+INFO:     Started server process [26416]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     127.0.0.1:38560 - "POST /workspaces/ HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:56374 - "POST /workspaces/ HTTP/1.1" 201 Created
+INFO:     127.0.0.1:56382 - "POST /assets/e22023e7-2358-44c0-b209-ac2302507426 HTTP/1.1" 201 Created
+INFO:     127.0.0.1:56388 - "POST /assets/e22023e7-2358-44c0-b209-ac2302507426 HTTP/1.1" 201 Created
+INFO:     127.0.0.1:56400 - "POST /kits/e22023e7-2358-44c0-b209-ac2302507426 HTTP/1.1" 201 Created
+INFO:     127.0.0.1:56410 - "POST /rag/query HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40424 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40424 - "GET /app.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40434 - "GET /kits/181cfc4a-a26a-46de-afbd-6c18ec53ac49 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40424 - "GET /assets/181cfc4a-a26a-46de-afbd-6c18ec53ac49 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35662 - "POST /assets/181cfc4a-a26a-46de-afbd-6c18ec53ac49 HTTP/1.1" 201 Created
+INFO:     127.0.0.1:35662 - "GET /assets/181cfc4a-a26a-46de-afbd-6c18ec53ac49 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45052 - "POST /assets/181cfc4a-a26a-46de-afbd-6c18ec53ac49/upload HTTP/1.1" 201 Created
+INFO:     127.0.0.1:45052 - "GET /assets/181cfc4a-a26a-46de-afbd-6c18ec53ac49 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45052 - "GET /assets/asset/619dc62c-1388-4a35-9bec-63228524f859/download HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60434 - "POST /assets/181cfc4a-a26a-46de-afbd-6c18ec53ac49/upload HTTP/1.1" 201 Created
+INFO:     127.0.0.1:60434 - "GET /assets/181cfc4a-a26a-46de-afbd-6c18ec53ac49 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60434 - "GET /assets/asset/97d39a2a-093f-4afd-b68d-d62b03fe65cf/download HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46668 - "GET /assets/181cfc4a-a26a-46de-afbd-6c18ec53ac49 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46668 - "GET /assets/181cfc4a-a26a-46de-afbd-6c18ec53ac49 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46668 - "GET /assets/181cfc4a-a26a-46de-afbd-6c18ec53ac49 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46668 - "GET /assets/181cfc4a-a26a-46de-afbd-6c18ec53ac49 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46678 - "POST /sharing-links/kit/2b218c88-8d99-4e8f-81af-e05eea325509 HTTP/1.1" 201 Created
+INFO:     127.0.0.1:42230 - "GET /shared.html?token=FJrW9w7Z_BIAfIkUw2qDm7IF23Qcjbs4csRj0G6Kezk HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42230 - "GET /shared.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42230 - "GET /sharing-links/token/FJrW9w7Z_BIAfIkUw2qDm7IF23Qcjbs4csRj0G6Kezk HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42246 - "POST /rag/query/shared/FJrW9w7Z_BIAfIkUw2qDm7IF23Qcjbs4csRj0G6Kezk HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [26416]

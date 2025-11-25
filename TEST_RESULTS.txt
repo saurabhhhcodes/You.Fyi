@@ -1,0 +1,313 @@
+[0;34m========================================
+YOU.FYI - COMPREHENSIVE API TEST
+========================================[0m
+
+
+[1;33m>>> 1. Creating Workspace[0m
+{
+  "id": "6f417455-c26a-4903-be47-af62763c44df",
+  "name": "Demo Workspace 1763619028 \ud83d\ude80",
+  "description": "Complete demonstration of You.fyi capabilities",
+  "created_at": "2025-11-20T06:10:28.516660",
+  "updated_at": "2025-11-20T06:10:28.516662"
+}
+[0;32m✅ Workspace created: 6f417455-c26a-4903-be47-af62763c44df[0m
+
+[1;33m>>> 2. Creating Text Asset[0m
+{
+  "id": "3c92486a-f8d7-4bcc-87ef-b892b6046ad9",
+  "workspace_id": "6f417455-c26a-4903-be47-af62763c44df",
+  "name": "API Documentation",
+  "description": "Complete API reference guide",
+  "content": "You.fyi is a smart workspace platform. Features:\n- Store assets (files, documents, data)\n- Create kits (asset groups)\n- Share with expiration links\n- Query with RAG & LLM\n- Full file upload support",
+  "asset_type": "document",
+  "mime_type": null,
+  "file_size": null,
+  "file_path": null,
+  "created_at": "2025-11-20T06:10:28.529375",
+  "updated_at": "2025-11-20T06:10:28.529379"
+}
+[0;32m✅ Text asset created: 3c92486a-f8d7-4bcc-87ef-b892b6046ad9[0m
+
+[1;33m>>> 3. Uploading Image File[0m
+[0;34mℹ️  Generated test image: /tmp/demo_image.png[0m
+{
+  "id": "bc793982-789b-40c0-a221-a12c974192ab",
+  "workspace_id": "6f417455-c26a-4903-be47-af62763c44df",
+  "name": "demo_image.png",
+  "description": "You.fyi Demo Product Image",
+  "content": "iVBORw0KGgoAAAANSUhEUgAAASwAAADICAIAAADdvUsCAAACRElEQVR4nO3TMQEAIAzAMMDu/N8goweJgj7dd2YBnVMHwO9MCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNC7AGqCANlBsc0LAAAAABJRU5ErkJggg==",
+  "asset_type": "file",
+  "mime_type": "application/octet-stream",
+  "file_size": 637,
+  "file_path": "demo_image.png",
+  "created_at": "2025-11-20T06:10:28.710985",
+  "updated_at": "2025-11-20T06:10:28.710990"
+}
+[0;32m✅ Image uploaded: bc793982-789b-40c0-a221-a12c974192ab[0m
+
+[1;33m>>> 4. Uploading PDF Document[0m
+[0;34mℹ️  Generated test PDF: /tmp/demo_doc.pdf[0m
+{
+  "id": "eeca5ab4-2bc3-4ef2-ba52-d809dbd9ff2c",
+  "workspace_id": "6f417455-c26a-4903-be47-af62763c44df",
+  "name": "demo_doc.pdf",
+  "description": "Platform Documentation",
+  "content": "JVBERi0xLjMKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgaHR0cDovL3d3dy5yZXBvcnRsYWIuY29tCjEgMCBvYmoKPDwKL0YxIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhIC9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nIC9OYW1lIC9GMSAvU3VidHlwZSAvVHlwZTEgL1R5cGUgL0ZvbnQKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL0NvbnRlbnRzIDcgMCBSIC9NZWRpYUJveCBbIDAgMCA1OTUuMjc1NiA4NDEuODg5OCBdIC9QYXJlbnQgNiAwIFIgL1Jlc291cmNlcyA8PAovRm9udCAxIDAgUiAvUHJvY1NldCBbIC9QREYgL1RleHQgL0ltYWdlQiAvSW1hZ2VDIC9JbWFnZUkgXQo+PiAvUm90YXRlIDAgL1RyYW5zIDw8Cgo+PiAKICAvVHlwZSAvUGFnZQo+PgplbmRvYmoKNCAwIG9iago8PAovUGFnZU1vZGUgL1VzZU5vbmUgL1BhZ2VzIDYgMCBSIC9UeXBlIC9DYXRhbG9nCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9BdXRob3IgKGFub255bW91cykgL0NyZWF0aW9uRGF0ZSAoRDoyMDI1MTEyMDExNDAyOCswMCcwMCcpIC9DcmVhdG9yIChSZXBvcnRMYWIgUERGIExpYnJhcnkgLSB3d3cucmVwb3J0bGFiLmNvbSkgL0tleXdvcmRzICgpIC9Nb2REYXRlIChEOjIwMjUxMTIwMTE0MDI4KzAwJzAwJykgL1Byb2R1Y2VyIChSZXBvcnRMYWIgUERGIExpYnJhcnkgLSB3d3cucmVwb3J0bGFiLmNvbSkgCiAgL1N1YmplY3QgKHVuc3BlY2lmaWVkKSAvVGl0bGUgKHVudGl0bGVkKSAvVHJhcHBlZCAvRmFsc2UKPj4KZW5kb2JqCjYgMCBvYmoKPDwKL0NvdW50IDEgL0tpZHMgWyAzIDAgUiBdIC9UeXBlIC9QYWdlcwo+PgplbmRvYmoKNyAwIG9iago8PAovRmlsdGVyIFsgL0FTQ0lJODVEZWNvZGUgL0ZsYXRlRGVjb2RlIF0gL0xlbmd0aCAyMDEKPj4Kc3RyZWFtCkdhcm84XyRZY1ooa2g/QGA+Z0RQcjYjQVcpLlo5LUAxMUomT2wqQko9KkUxX0RrQ1RyJWBMLEMoaFBydWQjJFZJLnBzcV9OPHFGby1wWElKNkRXN2k2LmFSdVxkNVAsLy8zZ1RoPjUqY191cUc2TlBlbmddNTsqKDMqK0hCZzhHViUlOl01OzElLF0vOUBrKWoubiVzb1pRPTtPLyRpcFQrXGhfMiFScTMsUTUnbD1mMjctcUcnbDBxUStIdGtASU9FMT1aXG5+PmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDgKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDczIDAwMDAwIG4gCjAwMDAwMDAxMDQgMDAwMDAgbiAKMDAwMDAwMDIxMSAwMDAwMCBuIAowMDAwMDAwNDE0IDAwMDAwIG4gCjAwMDAwMDA0ODIgMDAwMDAgbiAKMDAwMDAwMDc3OCAwMDAwMCBuIAowMDAwMDAwODM3IDAwMDAwIG4gCnRyYWlsZXIKPDwKL0lEIApbPGIzOGZkNjlhMDExM2Q2ZjhhZDIwMTdkNGVkMDMwN2UzPjxiMzhmZDY5YTAxMTNkNmY4YWQyMDE3ZDRlZDAzMDdlMz5dCiUgUmVwb3J0TGFiIGdlbmVyYXRlZCBQREYgZG9jdW1lbnQgLS0gZGlnZXN0IChodHRwOi8vd3d3LnJlcG9ydGxhYi5jb20pCgovSW5mbyA1IDAgUgovUm9vdCA0IDAgUgovU2l6ZSA4Cj4+CnN0YXJ0eHJlZgoxMTI4CiUlRU9GCg==",
+  "asset_type": "file",
+  "mime_type": "application/octet-stream",
+  "file_size": 1513,
+  "file_path": "demo_doc.pdf",
+  "created_at": "2025-11-20T06:10:28.740324",
+  "updated_at": "2025-11-20T06:10:28.740326"
+}
+[0;32m✅ PDF uploaded: eeca5ab4-2bc3-4ef2-ba52-d809dbd9ff2c[0m
+
+[1;33m>>> 5. Listing All Assets in Workspace[0m
+[
+  {
+    "id": "3c92486a-f8d7-4bcc-87ef-b892b6046ad9",
+    "workspace_id": "6f417455-c26a-4903-be47-af62763c44df",
+    "name": "API Documentation",
+    "description": "Complete API reference guide",
+    "content": "You.fyi is a smart workspace platform. Features:\n- Store assets (files, documents, data)\n- Create kits (asset groups)\n- Share with expiration links\n- Query with RAG & LLM\n- Full file upload support",
+    "asset_type": "document",
+    "mime_type": null,
+    "file_size": null,
+    "file_path": null,
+    "created_at": "2025-11-20T06:10:28.529375",
+    "updated_at": "2025-11-20T06:10:28.529379"
+  },
+  {
+    "id": "bc793982-789b-40c0-a221-a12c974192ab",
+    "workspace_id": "6f417455-c26a-4903-be47-af62763c44df",
+    "name": "demo_image.png",
+    "description": "You.fyi Demo Product Image",
+    "content": "iVBORw0KGgoAAAANSUhEUgAAASwAAADICAIAAADdvUsCAAACRElEQVR4nO3TMQEAIAzAMMDu/N8goweJgj7dd2YBnVMHwO9MCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNC7AGqCANlBsc0LAAAAABJRU5ErkJggg==",
+    "asset_type": "file",
+    "mime_type": "application/octet-stream",
+    "file_size": 637,
+    "file_path": "demo_image.png",
+    "created_at": "2025-11-20T06:10:28.710985",
+    "updated_at": "2025-11-20T06:10:28.710990"
+  },
+  {
+    "id": "eeca5ab4-2bc3-4ef2-ba52-d809dbd9ff2c",
+    "workspace_id": "6f417455-c26a-4903-be47-af62763c44df",
+    "name": "demo_doc.pdf",
+    "description": "Platform Documentation",
+    "content": "JVBERi0xLjMKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgaHR0cDovL3d3dy5yZXBvcnRsYWIuY29tCjEgMCBvYmoKPDwKL0YxIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhIC9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nIC9OYW1lIC9GMSAvU3VidHlwZSAvVHlwZTEgL1R5cGUgL0ZvbnQKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL0NvbnRlbnRzIDcgMCBSIC9NZWRpYUJveCBbIDAgMCA1OTUuMjc1NiA4NDEuODg5OCBdIC9QYXJlbnQgNiAwIFIgL1Jlc291cmNlcyA8PAovRm9udCAxIDAgUiAvUHJvY1NldCBbIC9QREYgL1RleHQgL0ltYWdlQiAvSW1hZ2VDIC9JbWFnZUkgXQo+PiAvUm90YXRlIDAgL1RyYW5zIDw8Cgo+PiAKICAvVHlwZSAvUGFnZQo+PgplbmRvYmoKNCAwIG9iago8PAovUGFnZU1vZGUgL1VzZU5vbmUgL1BhZ2VzIDYgMCBSIC9UeXBlIC9DYXRhbG9nCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9BdXRob3IgKGFub255bW91cykgL0NyZWF0aW9uRGF0ZSAoRDoyMDI1MTEyMDExNDAyOCswMCcwMCcpIC9DcmVhdG9yIChSZXBvcnRMYWIgUERGIExpYnJhcnkgLSB3d3cucmVwb3J0bGFiLmNvbSkgL0tleXdvcmRzICgpIC9Nb2REYXRlIChEOjIwMjUxMTIwMTE0MDI4KzAwJzAwJykgL1Byb2R1Y2VyIChSZXBvcnRMYWIgUERGIExpYnJhcnkgLSB3d3cucmVwb3J0bGFiLmNvbSkgCiAgL1N1YmplY3QgKHVuc3BlY2lmaWVkKSAvVGl0bGUgKHVudGl0bGVkKSAvVHJhcHBlZCAvRmFsc2UKPj4KZW5kb2JqCjYgMCBvYmoKPDwKL0NvdW50IDEgL0tpZHMgWyAzIDAgUiBdIC9UeXBlIC9QYWdlcwo+PgplbmRvYmoKNyAwIG9iago8PAovRmlsdGVyIFsgL0FTQ0lJODVEZWNvZGUgL0ZsYXRlRGVjb2RlIF0gL0xlbmd0aCAyMDEKPj4Kc3RyZWFtCkdhcm84XyRZY1ooa2g/QGA+Z0RQcjYjQVcpLlo5LUAxMUomT2wqQko9KkUxX0RrQ1RyJWBMLEMoaFBydWQjJFZJLnBzcV9OPHFGby1wWElKNkRXN2k2LmFSdVxkNVAsLy8zZ1RoPjUqY191cUc2TlBlbmddNTsqKDMqK0hCZzhHViUlOl01OzElLF0vOUBrKWoubiVzb1pRPTtPLyRpcFQrXGhfMiFScTMsUTUnbD1mMjctcUcnbDBxUStIdGtASU9FMT1aXG5+PmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDgKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDczIDAwMDAwIG4gCjAwMDAwMDAxMDQgMDAwMDAgbiAKMDAwMDAwMDIxMSAwMDAwMCBuIAowMDAwMDAwNDE0IDAwMDAwIG4gCjAwMDAwMDA0ODIgMDAwMDAgbiAKMDAwMDAwMDc3OCAwMDAwMCBuIAowMDAwMDAwODM3IDAwMDAwIG4gCnRyYWlsZXIKPDwKL0lEIApbPGIzOGZkNjlhMDExM2Q2ZjhhZDIwMTdkNGVkMDMwN2UzPjxiMzhmZDY5YTAxMTNkNmY4YWQyMDE3ZDRlZDAzMDdlMz5dCiUgUmVwb3J0TGFiIGdlbmVyYXRlZCBQREYgZG9jdW1lbnQgLS0gZGlnZXN0IChodHRwOi8vd3d3LnJlcG9ydGxhYi5jb20pCgovSW5mbyA1IDAgUgovUm9vdCA0IDAgUgovU2l6ZSA4Cj4+CnN0YXJ0eHJlZgoxMTI4CiUlRU9GCg==",
+    "asset_type": "file",
+    "mime_type": "application/octet-stream",
+    "file_size": 1513,
+    "file_path": "demo_doc.pdf",
+    "created_at": "2025-11-20T06:10:28.740324",
+    "updated_at": "2025-11-20T06:10:28.740326"
+  }
+]
+[0;32m✅ Found 3 assets[0m
+
+[1;33m>>> 6. Creating Kit with Assets[0m
+{
+  "id": "835a354b-1c45-473d-97ff-280e6bb0aa22",
+  "workspace_id": "6f417455-c26a-4903-be47-af62763c44df",
+  "name": "Complete Demo Kit \ud83d\udce6",
+  "description": "Kit containing all asset types for demonstration",
+  "assets": [],
+  "created_at": "2025-11-20T06:10:28.756728",
+  "updated_at": "2025-11-20T06:10:28.756731"
+}
+[0;32m✅ Kit created: 835a354b-1c45-473d-97ff-280e6bb0aa22[0m
+
+[1;33m>>> 7. Creating Sharing Link (7 days expiry)[0m
+{
+  "id": "2aec382e-6f13-45f5-b304-c9c006f1cc3c",
+  "kit_id": "835a354b-1c45-473d-97ff-280e6bb0aa22",
+  "token": "twnqR535vhnwjBb37YeVviXzs_iPQ2ror8yEi1Xj6wg",
+  "is_active": true,
+  "created_at": "2025-11-20T06:10:28.769450",
+  "expires_at": "2025-11-27T06:10:28.769051"
+}
+[0;32m✅ Sharing link created with token: twnqR535vh...[0m
+
+[1;33m>>> 8. Getting Workspace Details[0m
+{
+  "id": "6f417455-c26a-4903-be47-af62763c44df",
+  "name": "Demo Workspace 1763619028 \ud83d\ude80",
+  "description": "Complete demonstration of You.fyi capabilities",
+  "created_at": "2025-11-20T06:10:28.516660",
+  "updated_at": "2025-11-20T06:10:28.516662"
+}
+[0;32m✅ Workspace retrieved[0m
+
+[1;33m>>> 9. Adding Assets to Kit[0m
+{
+  "id": "835a354b-1c45-473d-97ff-280e6bb0aa22",
+  "workspace_id": "6f417455-c26a-4903-be47-af62763c44df",
+  "name": "Complete Demo Kit \ud83d\udce6",
+  "description": "Kit containing all asset types for demonstration",
+  "assets": [
+    {
+      "id": "eeca5ab4-2bc3-4ef2-ba52-d809dbd9ff2c",
+      "workspace_id": "6f417455-c26a-4903-be47-af62763c44df",
+      "name": "demo_doc.pdf",
+      "description": "Platform Documentation",
+      "content": "JVBERi0xLjMKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgaHR0cDovL3d3dy5yZXBvcnRsYWIuY29tCjEgMCBvYmoKPDwKL0YxIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhIC9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nIC9OYW1lIC9GMSAvU3VidHlwZSAvVHlwZTEgL1R5cGUgL0ZvbnQKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL0NvbnRlbnRzIDcgMCBSIC9NZWRpYUJveCBbIDAgMCA1OTUuMjc1NiA4NDEuODg5OCBdIC9QYXJlbnQgNiAwIFIgL1Jlc291cmNlcyA8PAovRm9udCAxIDAgUiAvUHJvY1NldCBbIC9QREYgL1RleHQgL0ltYWdlQiAvSW1hZ2VDIC9JbWFnZUkgXQo+PiAvUm90YXRlIDAgL1RyYW5zIDw8Cgo+PiAKICAvVHlwZSAvUGFnZQo+PgplbmRvYmoKNCAwIG9iago8PAovUGFnZU1vZGUgL1VzZU5vbmUgL1BhZ2VzIDYgMCBSIC9UeXBlIC9DYXRhbG9nCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9BdXRob3IgKGFub255bW91cykgL0NyZWF0aW9uRGF0ZSAoRDoyMDI1MTEyMDExNDAyOCswMCcwMCcpIC9DcmVhdG9yIChSZXBvcnRMYWIgUERGIExpYnJhcnkgLSB3d3cucmVwb3J0bGFiLmNvbSkgL0tleXdvcmRzICgpIC9Nb2REYXRlIChEOjIwMjUxMTIwMTE0MDI4KzAwJzAwJykgL1Byb2R1Y2VyIChSZXBvcnRMYWIgUERGIExpYnJhcnkgLSB3d3cucmVwb3J0bGFiLmNvbSkgCiAgL1N1YmplY3QgKHVuc3BlY2lmaWVkKSAvVGl0bGUgKHVudGl0bGVkKSAvVHJhcHBlZCAvRmFsc2UKPj4KZW5kb2JqCjYgMCBvYmoKPDwKL0NvdW50IDEgL0tpZHMgWyAzIDAgUiBdIC9UeXBlIC9QYWdlcwo+PgplbmRvYmoKNyAwIG9iago8PAovRmlsdGVyIFsgL0FTQ0lJODVEZWNvZGUgL0ZsYXRlRGVjb2RlIF0gL0xlbmd0aCAyMDEKPj4Kc3RyZWFtCkdhcm84XyRZY1ooa2g/QGA+Z0RQcjYjQVcpLlo5LUAxMUomT2wqQko9KkUxX0RrQ1RyJWBMLEMoaFBydWQjJFZJLnBzcV9OPHFGby1wWElKNkRXN2k2LmFSdVxkNVAsLy8zZ1RoPjUqY191cUc2TlBlbmddNTsqKDMqK0hCZzhHViUlOl01OzElLF0vOUBrKWoubiVzb1pRPTtPLyRpcFQrXGhfMiFScTMsUTUnbD1mMjctcUcnbDBxUStIdGtASU9FMT1aXG5+PmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDgKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDczIDAwMDAwIG4gCjAwMDAwMDAxMDQgMDAwMDAgbiAKMDAwMDAwMDIxMSAwMDAwMCBuIAowMDAwMDAwNDE0IDAwMDAwIG4gCjAwMDAwMDA0ODIgMDAwMDAgbiAKMDAwMDAwMDc3OCAwMDAwMCBuIAowMDAwMDAwODM3IDAwMDAwIG4gCnRyYWlsZXIKPDwKL0lEIApbPGIzOGZkNjlhMDExM2Q2ZjhhZDIwMTdkNGVkMDMwN2UzPjxiMzhmZDY5YTAxMTNkNmY4YWQyMDE3ZDRlZDAzMDdlMz5dCiUgUmVwb3J0TGFiIGdlbmVyYXRlZCBQREYgZG9jdW1lbnQgLS0gZGlnZXN0IChodHRwOi8vd3d3LnJlcG9ydGxhYi5jb20pCgovSW5mbyA1IDAgUgovUm9vdCA0IDAgUgovU2l6ZSA4Cj4+CnN0YXJ0eHJlZgoxMTI4CiUlRU9GCg==",
+      "asset_type": "file",
+      "mime_type": "application/octet-stream",
+      "file_size": 1513,
+      "file_path": "demo_doc.pdf",
+      "created_at": "2025-11-20T06:10:28.740324",
+      "updated_at": "2025-11-20T06:10:28.740326"
+    },
+    {
+      "id": "bc793982-789b-40c0-a221-a12c974192ab",
+      "workspace_id": "6f417455-c26a-4903-be47-af62763c44df",
+      "name": "demo_image.png",
+      "description": "You.fyi Demo Product Image",
+      "content": "iVBORw0KGgoAAAANSUhEUgAAASwAAADICAIAAADdvUsCAAACRElEQVR4nO3TMQEAIAzAMMDu/N8goweJgj7dd2YBnVMHwO9MCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNC7AGqCANlBsc0LAAAAABJRU5ErkJggg==",
+      "asset_type": "file",
+      "mime_type": "application/octet-stream",
+      "file_size": 637,
+      "file_path": "demo_image.png",
+      "created_at": "2025-11-20T06:10:28.710985",
+      "updated_at": "2025-11-20T06:10:28.710990"
+    },
+    {
+      "id": "3c92486a-f8d7-4bcc-87ef-b892b6046ad9",
+      "workspace_id": "6f417455-c26a-4903-be47-af62763c44df",
+      "name": "API Documentation",
+      "description": "Complete API reference guide",
+      "content": "You.fyi is a smart workspace platform. Features:\n- Store assets (files, documents, data)\n- Create kits (asset groups)\n- Share with expiration links\n- Query with RAG & LLM\n- Full file upload support",
+      "asset_type": "document",
+      "mime_type": null,
+      "file_size": null,
+      "file_path": null,
+      "created_at": "2025-11-20T06:10:28.529375",
+      "updated_at": "2025-11-20T06:10:28.529379"
+    }
+  ],
+  "created_at": "2025-11-20T06:10:28.756728",
+  "updated_at": "2025-11-20T06:10:28.756731"
+}
+[0;32m✅ Kit updated with 3 assets[0m
+
+[1;33m>>> 10. Getting Kit Details[0m
+{
+  "id": "835a354b-1c45-473d-97ff-280e6bb0aa22",
+  "workspace_id": "6f417455-c26a-4903-be47-af62763c44df",
+  "name": "Complete Demo Kit \ud83d\udce6",
+  "description": "Kit containing all asset types for demonstration",
+  "assets": [
+    {
+      "id": "eeca5ab4-2bc3-4ef2-ba52-d809dbd9ff2c",
+      "workspace_id": "6f417455-c26a-4903-be47-af62763c44df",
+      "name": "demo_doc.pdf",
+      "description": "Platform Documentation",
+      "content": "JVBERi0xLjMKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgaHR0cDovL3d3dy5yZXBvcnRsYWIuY29tCjEgMCBvYmoKPDwKL0YxIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhIC9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nIC9OYW1lIC9GMSAvU3VidHlwZSAvVHlwZTEgL1R5cGUgL0ZvbnQKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL0NvbnRlbnRzIDcgMCBSIC9NZWRpYUJveCBbIDAgMCA1OTUuMjc1NiA4NDEuODg5OCBdIC9QYXJlbnQgNiAwIFIgL1Jlc291cmNlcyA8PAovRm9udCAxIDAgUiAvUHJvY1NldCBbIC9QREYgL1RleHQgL0ltYWdlQiAvSW1hZ2VDIC9JbWFnZUkgXQo+PiAvUm90YXRlIDAgL1RyYW5zIDw8Cgo+PiAKICAvVHlwZSAvUGFnZQo+PgplbmRvYmoKNCAwIG9iago8PAovUGFnZU1vZGUgL1VzZU5vbmUgL1BhZ2VzIDYgMCBSIC9UeXBlIC9DYXRhbG9nCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9BdXRob3IgKGFub255bW91cykgL0NyZWF0aW9uRGF0ZSAoRDoyMDI1MTEyMDExNDAyOCswMCcwMCcpIC9DcmVhdG9yIChSZXBvcnRMYWIgUERGIExpYnJhcnkgLSB3d3cucmVwb3J0bGFiLmNvbSkgL0tleXdvcmRzICgpIC9Nb2REYXRlIChEOjIwMjUxMTIwMTE0MDI4KzAwJzAwJykgL1Byb2R1Y2VyIChSZXBvcnRMYWIgUERGIExpYnJhcnkgLSB3d3cucmVwb3J0bGFiLmNvbSkgCiAgL1N1YmplY3QgKHVuc3BlY2lmaWVkKSAvVGl0bGUgKHVudGl0bGVkKSAvVHJhcHBlZCAvRmFsc2UKPj4KZW5kb2JqCjYgMCBvYmoKPDwKL0NvdW50IDEgL0tpZHMgWyAzIDAgUiBdIC9UeXBlIC9QYWdlcwo+PgplbmRvYmoKNyAwIG9iago8PAovRmlsdGVyIFsgL0FTQ0lJODVEZWNvZGUgL0ZsYXRlRGVjb2RlIF0gL0xlbmd0aCAyMDEKPj4Kc3RyZWFtCkdhcm84XyRZY1ooa2g/QGA+Z0RQcjYjQVcpLlo5LUAxMUomT2wqQko9KkUxX0RrQ1RyJWBMLEMoaFBydWQjJFZJLnBzcV9OPHFGby1wWElKNkRXN2k2LmFSdVxkNVAsLy8zZ1RoPjUqY191cUc2TlBlbmddNTsqKDMqK0hCZzhHViUlOl01OzElLF0vOUBrKWoubiVzb1pRPTtPLyRpcFQrXGhfMiFScTMsUTUnbD1mMjctcUcnbDBxUStIdGtASU9FMT1aXG5+PmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDgKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDczIDAwMDAwIG4gCjAwMDAwMDAxMDQgMDAwMDAgbiAKMDAwMDAwMDIxMSAwMDAwMCBuIAowMDAwMDAwNDE0IDAwMDAwIG4gCjAwMDAwMDA0ODIgMDAwMDAgbiAKMDAwMDAwMDc3OCAwMDAwMCBuIAowMDAwMDAwODM3IDAwMDAwIG4gCnRyYWlsZXIKPDwKL0lEIApbPGIzOGZkNjlhMDExM2Q2ZjhhZDIwMTdkNGVkMDMwN2UzPjxiMzhmZDY5YTAxMTNkNmY4YWQyMDE3ZDRlZDAzMDdlMz5dCiUgUmVwb3J0TGFiIGdlbmVyYXRlZCBQREYgZG9jdW1lbnQgLS0gZGlnZXN0IChodHRwOi8vd3d3LnJlcG9ydGxhYi5jb20pCgovSW5mbyA1IDAgUgovUm9vdCA0IDAgUgovU2l6ZSA4Cj4+CnN0YXJ0eHJlZgoxMTI4CiUlRU9GCg==",
+      "asset_type": "file",
+      "mime_type": "application/octet-stream",
+      "file_size": 1513,
+      "file_path": "demo_doc.pdf",
+      "created_at": "2025-11-20T06:10:28.740324",
+      "updated_at": "2025-11-20T06:10:28.740326"
+    },
+    {
+      "id": "bc793982-789b-40c0-a221-a12c974192ab",
+      "workspace_id": "6f417455-c26a-4903-be47-af62763c44df",
+      "name": "demo_image.png",
+      "description": "You.fyi Demo Product Image",
+      "content": "iVBORw0KGgoAAAANSUhEUgAAASwAAADICAIAAADdvUsCAAACRElEQVR4nO3TMQEAIAzAMMDu/N8goweJgj7dd2YBnVMHwO9MCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNCzIQQMyHETAgxE0LMhBAzIcRMCDETQsyEEDMhxEwIMRNC7AGqCANlBsc0LAAAAABJRU5ErkJggg==",
+      "asset_type": "file",
+      "mime_type": "application/octet-stream",
+      "file_size": 637,
+      "file_path": "demo_image.png",
+      "created_at": "2025-11-20T06:10:28.710985",
+      "updated_at": "2025-11-20T06:10:28.710990"
+    },
+    {
+      "id": "3c92486a-f8d7-4bcc-87ef-b892b6046ad9",
+      "workspace_id": "6f417455-c26a-4903-be47-af62763c44df",
+      "name": "API Documentation",
+      "description": "Complete API reference guide",
+      "content": "You.fyi is a smart workspace platform. Features:\n- Store assets (files, documents, data)\n- Create kits (asset groups)\n- Share with expiration links\n- Query with RAG & LLM\n- Full file upload support",
+      "asset_type": "document",
+      "mime_type": null,
+      "file_size": null,
+      "file_path": null,
+      "created_at": "2025-11-20T06:10:28.529375",
+      "updated_at": "2025-11-20T06:10:28.529379"
+    }
+  ],
+  "created_at": "2025-11-20T06:10:28.756728",
+  "updated_at": "2025-11-20T06:10:28.756731"
+}
+[0;32m✅ Kit retrieved with 3 assets[0m
+
+[1;33m>>> 11. Testing RAG Query (LLM Integration)[0m
+{
+  "query": "What is You.fyi platform about?",
+  "answer": "Retrieved 3 relevant documents. Content preview: JVBERi0xLjMKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgaHR0cDovL3d3dy5yZXBvcnRsYWIuY29tCjEgMCBvYmoKPDwKL0YxIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhIC9FbmNvZGluZyAvV2lu...",
+  "sources": [
+    "eeca5ab4-2bc3-4ef2-ba52-d809dbd9ff2c",
+    "bc793982-789b-40c0-a221-a12c974192ab",
+    "3c92486a-f8d7-4bcc-87ef-b892b6046ad9"
+  ],
+  "model": "gpt-3.5-turbo"
+}
+[0;32m✅ RAG query executed[0m
+
+[1;33m>>> 12. Listing All Workspaces[0m
+[
+  {
+    "id": "9ccf547b-3f79-4635-97a0-0d51fdc74465",
+    "name": "Demo Workspace \ud83d\ude80",
+    "description": "Complete demonstration of You.fyi capabilities",
+    "created_at": "2025-11-20T06:07:39.848268",
+    "updated_at": "2025-11-20T06:07:39.848272"
+  },
+  {
+    "id": "1967b7d5-016a-46d9-bf4e-f0a4bc1fe2a5",
+    "name": "Demo Workspace 1763618931 \ud83d\ude80",
+    "description": "Complete demonstration of You.fyi capabilities",
+    "created_at": "2025-11-20T06:08:51.748701",
+    "updated_at": "2025-11-20T06:08:51.748705"
+  },
+  {
+    "id": "6f417455-c26a-4903-be47-af62763c44df",
+    "name": "Demo Workspace 1763619028 \ud83d\ude80",
+    "description": "Complete demonstration of You.fyi capabilities",
+    "created_at": "2025-11-20T06:10:28.516660",
+    "updated_at": "2025-11-20T06:10:28.516662"
+  }
+]
+[0;32m✅ Found 3 workspaces[0m
+
+[1;33m>>> COMPREHENSIVE TEST SUMMARY[0m
+
+[0;32m✅ Passed (12):[0m
+  ✓ Workspace Creation
+  ✓ Text Asset Creation
+  ✓ Image Upload
+  ✓ PDF Upload
+  ✓ Asset Listing
+  ✓ Kit Creation
+  ✓ Sharing Link Creation
+  ✓ Get Workspace
+  ✓ Add Assets to Kit
+  ✓ Get Kit
+  ✓ RAG Query
+  ✓ List Workspaces
+
+[0;34mTest Statistics:[0m
+  Total Tests: 12
+  Passed: 12
+  Failed: 0
+  Success Rate: 100.0%
+
+[0;34mAPI Documentation:[0m
+  Swagger UI: http://localhost:8001/docs
+  ReDoc: http://localhost:8001/redoc
+  OpenAPI: http://localhost:8001/openapi.json
+
+[0;32m🎉 ALL TESTS PASSED! Platform is 100% functional![0m
