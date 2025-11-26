@@ -248,3 +248,50 @@ pre {
 #set-ws {
   width: 90px;
 }
+
+/* Sharing Link Box */
+.share-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 16px;
+  border-radius: var(--border-radius);
+  margin-top: 12px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.share-box input {
+  background: #ffffff;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+  font-family: monospace;
+}
+
+/* Chips for Quick Actions */
+.chip {
+  border-radius: 20px !important;
+  padding: 6px 12px !important;
+  font-size: 13px !important;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0 !important;
+  transition: var(--transition);
+}
+
+.chip:hover {
+  background: #e2e8f0;
+  transform: translateY(-1px);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Button Active State */
+button:active {
+  transform: translateY(1px);
+}
