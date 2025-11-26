@@ -371,3 +371,24 @@ window.addEventListener('load', async () => {
     if (state.workspaceId) await refreshKits();
   }
 })
+
+// Navigation Logic
+function switchView(viewId) {
+  ['view-assets', 'view-kits', 'view-settings'].forEach(id => {
+    const elView = el(id);
+    if (elView) elView.style.display = (id === viewId) ? 'block' : 'none';
+  });
+
+  ['nav-assets', 'nav-kits', 'nav-settings'].forEach(id => {
+    const elNav = el(id);
+    if (elNav) elNav.classList.remove('active');
+  });
+
+  const activeNavId = viewId.replace('view-', 'nav-');
+  const elActive = el(activeNavId);
+  if (elActive) elActive.classList.add('active');
+}
+
+el('nav-assets').addEventListener('click', () => switchView('view-assets'));
+el('nav-kits').addEventListener('click', () => switchView('view-kits'));
+el('nav-settings').addEventListener('click', () => switchView('view-settings'));
