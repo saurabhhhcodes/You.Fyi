@@ -34,14 +34,12 @@ app.include_router(rag.router)
 app.mount("/ui", StaticFiles(directory="app/static", html=True), name="ui")
 
 
+from fastapi.responses import RedirectResponse
+
 @app.get("/", tags=["root"])
 def read_root():
-    """API health check"""
-    return {
-        "message": "You.fyi API is running",
-        "version": "1.0.0",
-        "docs": "/docs"
-    }
+    """Redirect to UI"""
+    return RedirectResponse(url="/ui/")
 
 
 @app.get("/health", tags=["health"])
