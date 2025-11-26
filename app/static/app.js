@@ -904,10 +904,6 @@ window.addEventListener('load', async () => {
   el('add-to-kit-btn').addEventListener('click', addSelectedToKit);
   el('share-kit-btn').addEventListener('click', createShare);
 
-  // Export/Import
-  el('export-workspace').addEventListener('click', exportWorkspace);
-  el('import-workspace').addEventListener('click', importWorkspace);
-
   // Select All
   el('select-all-assets').addEventListener('change', (e) => {
     document.querySelectorAll('input[type=checkbox][data-asset-id]').forEach(c => c.checked = e.target.checked);
