@@ -141,11 +141,26 @@ async function deleteAsset(id) {
 async function refreshAssets() {
   if (!state.workspaceId) return
   const res = await fetch(`/assets/${state.workspaceId}`)
+  if (res.status === 404) {
+    handleInvalidWorkspace()
+    return
+  }
   if (!res.ok) { el('assets').textContent = 'Error fetching assets'; return }
   const arr = await res.json()
   state.assets = arr
   const container = el('assets'); container.innerHTML = ''
   arr.forEach(a => container.appendChild(makeAssetCard(a)))
+}
+
+function handleInvalidWorkspace() {
+  if (!state.workspaceId) return
+  showMessage('Workspace not found (it may have been deleted). Please create a new one.', 'error')
+  state.workspaceId = null
+  state.lastKitId = null
+  el('ws-result').textContent = ''
+  try { localStorage.removeItem('youfyi_workspace') } catch (e) { }
+  el('assets').innerHTML = ''
+  el('kits').innerHTML = ''
 }
 
 async function deleteKit(id) {
@@ -162,6 +177,10 @@ async function refreshKits() {
   const kdom = el('kits');
   if (!state.workspaceId) { kdom.innerHTML = '<div class="muted small">Select a workspace to see kits.</div>'; return }
   const res = await fetch(`/kits/${state.workspaceId}`)
+  if (res.status === 404) {
+    handleInvalidWorkspace()
+    return
+  }
   if (!res.ok) { kdom.textContent = 'Error loading kits'; return }
   const arr = await res.json(); state.kits = arr
   kdom.innerHTML = ''
