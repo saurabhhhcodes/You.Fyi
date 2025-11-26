@@ -6,12 +6,28 @@ function el(id) { return document.getElementById(id) }
 
 function fmtSize(n) { if (!n && n !== 0) return '-'; if (n < 1024) return n + ' B'; if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB'; return (n / 1024 / 1024).toFixed(2) + ' MB' }
 
+function showToast(title, msg, type = 'info') {
+  const container = el('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `
+    <div class="toast-content">
+      <div class="toast-title">${title}</div>
+      <div class="toast-message">${msg || ''}</div>
+    </div>
+  `;
+  container.appendChild(toast);
+
+  // Auto remove
+  setTimeout(() => {
+    toast.style.animation = 'fadeOut 0.3s ease-out forwards';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
 function showMessage(msg, type = 'info') {
-  // We don't have a global message container anymore in the new design, 
-  // but we can use alert for errors or a toast if we had one.
-  // For now, let's log to console and maybe alert if error.
-  console.log(`[${type}] ${msg}`);
-  if (type === 'error') alert(msg);
+  // Backward compatibility wrapper
+  showToast(type === 'error' ? 'Error' : 'Success', msg, type);
 }
 
 // --- Workspace ---
@@ -28,21 +44,21 @@ async function createWorkspace() {
       state.workspaceId = j.id
       el('ws-result').textContent = state.workspaceId
       try { localStorage.setItem('youfyi_workspace', state.workspaceId) } catch (e) { }
-      alert(`Workspace "${name}" created successfully.`)
+      showToast('Workspace Created', `Workspace "${name}" created successfully.`, 'success')
       el('ws-name').value = `Workspace-${Date.now()}`
       await refreshAssets(); await refreshKits()
       return
     }
     const text = await res.text()
-    alert(`Error creating workspace: ${text}`)
+    showToast('Error', text, 'error')
   } catch (e) {
-    alert(`Network error: ${e.message}`)
+    showToast('Network Error', e.message, 'error')
   } finally { btn.disabled = false }
 }
 
 function setWorkspaceById() {
   const id = el('ws-id').value.trim()
-  if (!id) return alert('Enter a workspace id')
+  if (!id) return showToast('Input Required', 'Enter a workspace id', 'error')
   state.workspaceId = id
   el('ws-result').textContent = id
   try { localStorage.setItem('youfyi_workspace', id) } catch (e) { }
@@ -60,14 +76,14 @@ async function deleteWorkspace() {
     try { localStorage.removeItem('youfyi_workspace') } catch (e) { }
     refreshAssets(); refreshKits()
   } else {
-    alert('Error deleting workspace')
+    showToast('Error', 'Error deleting workspace', 'error')
   }
 }
 
 // --- Assets ---
 
 async function createAsset() {
-  if (!state.workspaceId) { alert('Create a workspace first'); return }
+  if (!state.workspaceId) { showToast('Action Required', 'Create a workspace first', 'error'); return }
   const name = el('asset-name').value
   const desc = el('asset-desc').value
   const content = el('asset-content').value
@@ -75,7 +91,7 @@ async function createAsset() {
 
   const res = await fetch(`/assets/${state.workspaceId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
   if (!res.ok) {
-    alert(`Error creating asset: ${await res.text()}`)
+    showToast('Error', `Error creating asset: ${await res.text()}`, 'error')
     return
   }
   toggleCreatePanel(false);
@@ -83,9 +99,9 @@ async function createAsset() {
 }
 
 async function uploadFile() {
-  if (!state.workspaceId) { alert('Create a workspace first'); return }
+  if (!state.workspaceId) { showToast('Action Required', 'Create a workspace first', 'error'); return }
   const fileInput = el('upload-file')
-  if (!fileInput.files.length) { alert('Choose a file to upload'); return }
+  if (!fileInput.files.length) { showToast('Input Required', 'Choose a file to upload', 'error'); return }
   const file = fileInput.files[0]
   const name = el('upload-name').value || file.name
   const form = new FormData()
@@ -94,7 +110,7 @@ async function uploadFile() {
   form.append('description', 'Uploaded from UI')
 
   const res = await fetch(`/assets/${state.workspaceId}/upload`, { method: 'POST', body: form })
-  if (!res.ok) { alert(`Error uploading: ${await res.text()}`); return }
+  if (!res.ok) { showToast('Error', `Error uploading: ${await res.text()}`, 'error'); return }
 
   toggleCreatePanel(false);
   await refreshAssets()
@@ -168,7 +184,7 @@ async function deleteAsset(id) {
   if (!confirm('Delete this asset?')) return
   const res = await fetch(`/assets/asset/${id}`, { method: 'DELETE' })
   if (res.ok) { await refreshAssets() }
-  else alert('Error deleting asset')
+  else showToast('Error', 'Error deleting asset', 'error')
 }
 
 async function refreshAssets() {
@@ -266,7 +282,7 @@ function selectKit(k) {
 }
 
 async function createKit() {
-  if (!state.workspaceId) { alert('Create a workspace first'); return }
+  if (!state.workspaceId) { showToast('Action Required', 'Create a workspace first', 'error'); return }
   const name = prompt('Kit Name:', `Kit ${Date.now()}`);
   if (!name) return;
 
@@ -274,7 +290,7 @@ async function createKit() {
   if (res.ok) {
     await refreshKits();
   } else {
-    alert('Error creating kit');
+    showToast('Error', 'Error creating kit', 'error');
   }
 }
 
