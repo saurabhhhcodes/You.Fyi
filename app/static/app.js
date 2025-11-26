@@ -345,6 +345,76 @@ function selectKit(k) {
   // Find the card we just clicked - strictly speaking we should have a ref, but this is fine for now
 }
 
+// --- Kit Actions ---
+
+async function addSelectedToKit() {
+  if (!state.lastKitId) {
+    showToast('Action Required', 'Select or create a kit first (use Kits tab).', 'error');
+    return
+  }
+  const checks = Array.from(document.querySelectorAll('#assets-table-body input[type=checkbox]:checked'))
+  const ids = checks.map(c => c.dataset.assetId)
+  if (!ids.length) {
+    showToast('Selection Required', 'Select at least one asset', 'error');
+    return
+  }
+
+  const btn = el('add-assets');
+  setLoading(btn, true, 'Adding...');
+
+  const res = await fetch(`/kits/kit/${state.lastKitId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ asset_ids: ids })
+  })
+
+  setLoading(btn, false);
+
+  if (res.ok || res.status === 204) {
+    showToast('Success', `Added ${ids.length} assets to the selected kit.`, 'success')
+    await refreshKits()
+    return
+  }
+  showToast('Error', `Error adding assets to kit: ${await res.text()}`, 'error')
+}
+
+async function createShare() {
+  if (!state.lastKitId) {
+    showToast('Action Required', 'Select a kit first', 'error');
+    return
+  }
+
+  const btn = el('create-share');
+  setLoading(btn, true, 'Creating...');
+
+  const res = await fetch(`/sharing-links/kit/${state.lastKitId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ expires_in_days: 7 })
+  })
+
+  setLoading(btn, false);
+
+  if (!res.ok) {
+    showToast('Error', `Error creating sharing link: ${await res.text()}`, 'error')
+    return
+  }
+
+  const j = await res.json();
+  state.lastShare = j
+  const link = `${window.location.origin}/ui/shared.html?token=${j.token}`;
+
+  showToast('Sharing Link Created', link, 'success')
+
+  // Copy to clipboard
+  try {
+    await navigator.clipboard.writeText(link);
+    showToast('Copied', 'Link copied to clipboard!', 'success')
+  } catch (e) {
+    console.log('Clipboard copy failed', e);
+  }
+}
+
 async function createKit() {
   if (!state.workspaceId) { showToast('Action Required', 'Create a workspace first', 'error'); return }
   const name = prompt('Kit Name:', `Kit ${Date.now()}`);
@@ -454,10 +524,37 @@ window.addEventListener('load', async () => {
   el('create-kit').addEventListener('click', createKit);
   el('run-rag').addEventListener('click', runRag);
 
+  // Asset Actions
+  el('refresh-assets').addEventListener('click', refreshAssets);
+  el('add-assets').addEventListener('click', addSelectedToKit);
+  el('create-share').addEventListener('click', createShare);
+
   // Select All
   el('select-all-assets').addEventListener('change', (e) => {
     document.querySelectorAll('input[type=checkbox][data-asset-id]').forEach(c => c.checked = e.target.checked);
   });
+
+  // Quick Actions Toggle
+  el('toggle-quick-actions').addEventListener('click', () => {
+    const menu = el('quick-actions-menu');
+    const arrow = el('qa-arrow');
+    if (menu.style.display === 'none') {
+      menu.style.display = 'block';
+      arrow.textContent = '▲';
+    } else {
+      menu.style.display = 'none';
+      arrow.textContent = '▼';
+    }
+  });
+
+  // Quick Query Buttons
+  el('quick-query-count').addEventListener('click', () => { el('rag-query').value = 'Count Assets'; runRag(); });
+  el('quick-query-types').addEventListener('click', () => { el('rag-query').value = 'File Types'; runRag(); });
+  el('quick-query-recent').addEventListener('click', () => { el('rag-query').value = 'Recent Files'; runRag(); });
+  el('quick-query-summary').addEventListener('click', () => { el('rag-query').value = 'Basic Summary'; runRag(); });
+  el('quick-query-largest').addEventListener('click', () => { el('rag-query').value = 'Largest Files'; runRag(); });
+  el('quick-query-pdfs').addEventListener('click', () => { el('rag-query').value = 'List PDFs'; runRag(); });
+  el('quick-query-images').addEventListener('click', () => { el('rag-query').value = 'List Images'; runRag(); });
 
   // Init State
   try {

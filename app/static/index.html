@@ -53,9 +53,14 @@
               <span class="search-icon">🔍</span>
               <input type="text" placeholder="Search assets..." id="asset-search">
             </div>
-            <button id="btn-new-asset" class="btn btn-primary">
-              <span>+</span> New Asset
-            </button>
+            <div style="display: flex; gap: 8px;">
+              <button id="refresh-assets" class="btn btn-secondary">Refresh</button>
+              <button id="add-assets" class="btn btn-secondary">Add to Kit</button>
+              <button id="create-share" class="btn btn-secondary">Share</button>
+              <button id="btn-new-asset" class="btn btn-primary">
+                <span>+</span> New Asset
+              </button>
+            </div>
           </div>
 
           <!-- Asset Creation Section (Hidden by default) -->
@@ -143,8 +148,51 @@
             <h3>RAG Playground</h3>
             <div class="form-group">
               <label>Query</label>
-              <input id="rag-query" class="form-control" placeholder="Ask something about the assets in this kit...">
+              <input id="rag-query" class="form-control" placeholder="Ask something about the assets in this kit..."
+                value="Give a short summary of the assets">
             </div>
+
+            <!-- Quick Actions -->
+            <div class="form-group">
+              <label class="small">Quick Actions</label>
+              <div>
+                <button type="button" id="toggle-quick-actions" class="btn btn-secondary"
+                  style="width:100%; text-align:left; display:flex; justify-content:space-between; align-items:center">
+                  <span>Show Quick Actions</span>
+                  <span id="qa-arrow">▼</span>
+                </button>
+              </div>
+              <div id="quick-actions-menu"
+                style="display:none; margin-top:8px; padding:8px; border:1px solid #eee; border-radius:4px; background:#fafafa">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button type="button" id="quick-query-count" class="btn btn-secondary"
+                    style="font-size: 12px; padding: 6px 12px;">Count Assets</button>
+                  <button type="button" id="quick-query-types" class="btn btn-secondary"
+                    style="font-size: 12px; padding: 6px 12px;">File Types</button>
+                  <button type="button" id="quick-query-recent" class="btn btn-secondary"
+                    style="font-size: 12px; padding: 6px 12px;">Recent Files</button>
+                  <button type="button" id="quick-query-summary" class="btn btn-secondary"
+                    style="font-size: 12px; padding: 6px 12px;">Basic Summary</button>
+                  <button type="button" id="quick-query-largest" class="btn btn-secondary"
+                    style="font-size: 12px; padding: 6px 12px;">Largest Files</button>
+                  <button type="button" id="quick-query-pdfs" class="btn btn-secondary"
+                    style="font-size: 12px; padding: 6px 12px;">List PDFs</button>
+                  <button type="button" id="quick-query-images" class="btn btn-secondary"
+                    style="font-size: 12px; padding: 6px 12px;">List Images</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- LLM Model Selector -->
+            <div class="form-group">
+              <label for="llm-model">LLM Model (Advanced Queries)</label>
+              <select id="llm-model" class="form-control">
+                <option value="gemini-pro" selected>Gemini Pro</option>
+                <option value="synthetic-grok" disabled>Synthetic Grok (Coming Soon)</option>
+                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+              </select>
+            </div>
+
             <div class="row-actions" style="justify-content: space-between; align-items: center;">
               <label class="small"><input type="checkbox" id="use-llm" checked /> Use LLM</label>
               <button id="run-rag" class="btn btn-primary">Run Query</button>
