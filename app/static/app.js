@@ -8,7 +8,7 @@ function fmtSize(n) { if (!n && n !== 0) return '-'; if (n < 1024) return n + ' 
 
 function showMessage(msg, type = 'info') {
   const msgEl = el('message');
-  msgEl.textContent = msg;
+  msgEl.innerHTML = msg;
   msgEl.className = `small ${type}`; // Placeholder for styling
 }
 
