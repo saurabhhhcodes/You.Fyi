@@ -1,23 +1,26 @@
 const base = ''
 
-const state = { workspaceId: null, kits: [], assets: [], lastShare: null }
+const state = { workspaceId: null, kits: [], assets: [], lastShare: null, lastKitId: null }
 
 function el(id) { return document.getElementById(id) }
 
 function fmtSize(n) { if (!n && n !== 0) return '-'; if (n < 1024) return n + ' B'; if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB'; return (n / 1024 / 1024).toFixed(2) + ' MB' }
 
 function showMessage(msg, type = 'info') {
-  const msgEl = el('message');
-  msgEl.innerHTML = msg;
-  msgEl.className = `small ${type}`; // Placeholder for styling
+  // We don't have a global message container anymore in the new design, 
+  // but we can use alert for errors or a toast if we had one.
+  // For now, let's log to console and maybe alert if error.
+  console.log(`[${type}] ${msg}`);
+  if (type === 'error') alert(msg);
 }
+
+// --- Workspace ---
 
 async function createWorkspace() {
   const name = el('ws-name').value
   const desc = el('ws-desc').value
   const btn = el('create-ws')
   btn.disabled = true
-  showMessage('Creating workspace...')
   try {
     const res = await fetch('/workspaces/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, description: desc }) })
     if (res.ok) {
@@ -25,15 +28,15 @@ async function createWorkspace() {
       state.workspaceId = j.id
       el('ws-result').textContent = state.workspaceId
       try { localStorage.setItem('youfyi_workspace', state.workspaceId) } catch (e) { }
-      showMessage(`Workspace "${name}" created successfully. You can now create assets.`, 'success')
-      el('ws-name').value = `Client Workspace-${Date.now()}` // Regenerate name to prevent duplicates
+      alert(`Workspace "${name}" created successfully.`)
+      el('ws-name').value = `Workspace-${Date.now()}`
       await refreshAssets(); await refreshKits()
       return
     }
     const text = await res.text()
-    showMessage(`Error creating workspace: ${text}`, 'error')
+    alert(`Error creating workspace: ${text}`)
   } catch (e) {
-    showMessage(`Network error: ${e.message}`, 'error')
+    alert(`Network error: ${e.message}`)
   } finally { btn.disabled = false }
 }
 
@@ -44,7 +47,6 @@ function setWorkspaceById() {
   el('ws-result').textContent = id
   try { localStorage.setItem('youfyi_workspace', id) } catch (e) { }
   refreshAssets(); refreshKits();
-  showMessage('Workspace set to: ' + id)
 }
 
 async function deleteWorkspace() {
@@ -52,16 +54,17 @@ async function deleteWorkspace() {
   if (!confirm('Delete current workspace? This will delete all assets and kits inside it.')) return
   const res = await fetch(`/workspaces/${state.workspaceId}`, { method: 'DELETE' })
   if (res.ok) {
-    showMessage('Workspace deleted', 'success')
     state.workspaceId = null
     state.lastKitId = null
-    el('ws-result').textContent = ''
+    el('ws-result').textContent = 'None'
     try { localStorage.removeItem('youfyi_workspace') } catch (e) { }
     refreshAssets(); refreshKits()
   } else {
-    showMessage('Error deleting workspace', 'error')
+    alert('Error deleting workspace')
   }
 }
+
+// --- Assets ---
 
 async function createAsset() {
   if (!state.workspaceId) { alert('Create a workspace first'); return }
@@ -69,15 +72,13 @@ async function createAsset() {
   const desc = el('asset-desc').value
   const content = el('asset-content').value
   const payload = { name, description: desc, content, asset_type: 'document' }
-  showMessage('Creating text asset...')
+
   const res = await fetch(`/assets/${state.workspaceId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
   if (!res.ok) {
-    showMessage(`Error creating asset: ${await res.text()}`, 'error')
+    alert(`Error creating asset: ${await res.text()}`)
     return
   }
-  const j = await res.json()
-  // el('asset-result').textContent = JSON.stringify(j, null, 2) // Hidden per user request
-  showMessage(`Created asset "${name}"`, 'success')
+  toggleCreatePanel(false);
   await refreshAssets()
 }
 
@@ -91,292 +92,226 @@ async function uploadFile() {
   form.append('file', file)
   form.append('name', name)
   form.append('description', 'Uploaded from UI')
-  showMessage(`Uploading "${name}"...`)
+
   const res = await fetch(`/assets/${state.workspaceId}/upload`, { method: 'POST', body: form })
-  if (!res.ok) { el('upload-result').textContent = await res.text(); showMessage(`Error uploading: ${await res.text()}`, 'error'); return }
-  const j = await res.json()
-  // el('upload-result').textContent = JSON.stringify(j, null, 2) // Hidden per user request
-  showMessage(`Uploaded "${name}"`, 'success')
+  if (!res.ok) { alert(`Error uploading: ${await res.text()}`); return }
+
+  toggleCreatePanel(false);
   await refreshAssets()
 }
 
 function fileIcon(mime) {
-  if (!mime) return 'DOC'
+  if (!mime) return '📄'
   if (mime.startsWith('image/')) return '🖼️'
-  if (mime === 'application/pdf') return 'PDF'
-  if (mime.startsWith('text/')) return 'TXT'
-  if (mime.startsWith('audio/')) return 'AU'
+  if (mime === 'application/pdf') return '📕'
+  if (mime.startsWith('text/')) return '📝'
+  if (mime.startsWith('audio/')) return '🎵'
   if (mime.startsWith('video/')) return '🎬'
-  return 'FILE'
+  return '📄'
 }
 
-function makeAssetCard(a) {
-  const wrap = document.createElement('div'); wrap.className = 'asset'
-  const icon = document.createElement('div'); icon.className = 'file-icon'; icon.textContent = fileIcon(a.mime_type)
-  const meta = document.createElement('div'); meta.className = 'meta'
-  const title = document.createElement('div'); title.innerHTML = `<strong>${a.name}</strong> <span class="muted small">${a.asset_type}</span>`
-  const desc = document.createElement('div'); desc.className = 'small muted'; desc.textContent = a.description || ''
-  const info = document.createElement('div'); info.className = 'small muted'; info.textContent = `${a.mime_type || '-'} • ${fmtSize(a.file_size)}`
-  meta.appendChild(title); meta.appendChild(desc); meta.appendChild(info)
-  const actions = document.createElement('div'); actions.className = 'actions'
-  const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.dataset.assetId = a.id
-  const dl = document.createElement('a'); dl.className = 'download-link'; dl.textContent = 'Download'; dl.href = `/assets/asset/${a.id}/download`
-  dl.setAttribute('download', '')
-  const delBtn = document.createElement('button'); delBtn.textContent = 'Delete'; delBtn.className = 'danger small'; delBtn.style.marginLeft = '8px'
-  delBtn.onclick = () => deleteAsset(a.id)
-  actions.appendChild(checkbox); actions.appendChild(dl); actions.appendChild(delBtn)
-  wrap.appendChild(icon); wrap.appendChild(meta); wrap.appendChild(actions)
-  // if image show thumbnail
-  if (a.mime_type && a.mime_type.startsWith('image/')) {
-    const img = document.createElement('img'); img.src = `/assets/asset/${a.id}/download`; img.className = 'img-thumb'; img.alt = a.name
-    meta.insertBefore(img, title)
-  }
-  return wrap
+function makeAssetRow(a) {
+  const tr = document.createElement('tr');
+
+  // Checkbox
+  const tdCheck = document.createElement('td');
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.dataset.assetId = a.id;
+  tdCheck.appendChild(checkbox);
+
+  // Name
+  const tdName = document.createElement('td');
+  tdName.innerHTML = `
+    <div style="display:flex; align-items:center; gap:12px;">
+      <span style="font-size:20px; color:#64748b;">${fileIcon(a.mime_type)}</span>
+      <div>
+        <div style="font-weight:500; color:#1e293b;">${a.name}</div>
+        <div style="font-size:12px; color:#94a3b8;">${a.description || ''}</div>
+      </div>
+    </div>
+  `;
+
+  // Type
+  const tdType = document.createElement('td');
+  tdType.textContent = a.asset_type || 'Unknown';
+
+  // Size
+  const tdSize = document.createElement('td');
+  tdSize.textContent = fmtSize(a.file_size);
+
+  // Modified (Mock for now as API might not return it)
+  const tdMod = document.createElement('td');
+  tdMod.textContent = new Date().toLocaleDateString();
+
+  // Actions
+  const tdActions = document.createElement('td');
+  tdActions.className = 'text-right';
+  tdActions.innerHTML = `
+    <div class="row-actions">
+      <a href="/assets/asset/${a.id}/download" download class="icon-btn" title="Download">⬇️</a>
+      <button class="icon-btn delete-asset-btn" data-id="${a.id}" title="Delete">🗑️</button>
+    </div>
+  `;
+
+  tr.appendChild(tdCheck);
+  tr.appendChild(tdName);
+  tr.appendChild(tdType);
+  tr.appendChild(tdSize);
+  tr.appendChild(tdMod);
+  tr.appendChild(tdActions);
+
+  return tr;
 }
 
 async function deleteAsset(id) {
   if (!confirm('Delete this asset?')) return
   const res = await fetch(`/assets/asset/${id}`, { method: 'DELETE' })
-  if (res.ok) { showMessage('Asset deleted', 'success'); await refreshAssets() }
-  else showMessage('Error deleting asset', 'error')
+  if (res.ok) { await refreshAssets() }
+  else alert('Error deleting asset')
 }
 
 async function refreshAssets() {
-  if (!state.workspaceId) return
+  if (!state.workspaceId) {
+    el('assets-table-body').innerHTML = '';
+    el('assets-empty').style.display = 'block';
+    el('assets-empty').textContent = 'Please select or create a workspace first.';
+    return;
+  }
+
   const res = await fetch(`/assets/${state.workspaceId}`)
   if (res.status === 404) {
     handleInvalidWorkspace()
     return
   }
-  if (!res.ok) { el('assets').textContent = 'Error fetching assets'; return }
+  if (!res.ok) { console.error('Error fetching assets'); return }
+
   const arr = await res.json()
   state.assets = arr
-  const container = el('assets'); container.innerHTML = ''
-  arr.forEach(a => container.appendChild(makeAssetCard(a)))
+
+  const tbody = el('assets-table-body');
+  tbody.innerHTML = '';
+
+  if (arr.length === 0) {
+    el('assets-empty').style.display = 'block';
+    el('assets-empty').textContent = 'No assets found. Create one to get started.';
+  } else {
+    el('assets-empty').style.display = 'none';
+    arr.forEach(a => tbody.appendChild(makeAssetRow(a)));
+
+    // Wire up delete buttons
+    document.querySelectorAll('.delete-asset-btn').forEach(btn => {
+      btn.addEventListener('click', () => deleteAsset(btn.dataset.id));
+    });
+  }
 }
 
 function handleInvalidWorkspace() {
-  if (!state.workspaceId) return
-  showMessage('Workspace not found (it may have been deleted). Please create a new one.', 'error')
   state.workspaceId = null
-  state.lastKitId = null
-  el('ws-result').textContent = ''
+  el('ws-result').textContent = 'None'
   try { localStorage.removeItem('youfyi_workspace') } catch (e) { }
-  el('assets').innerHTML = ''
+  el('assets-table-body').innerHTML = ''
   el('kits').innerHTML = ''
 }
 
-async function deleteKit(id) {
-  if (!confirm('Delete this kit?')) return
-  const res = await fetch(`/kits/kit/${id}`, { method: 'DELETE' })
-  if (res.ok) {
-    showMessage('Kit deleted', 'success')
-    if (state.lastKitId === id) state.lastKitId = null
-    await refreshKits()
-  } else showMessage('Error deleting kit', 'error')
-}
+// --- Kits ---
 
 async function refreshKits() {
   const kdom = el('kits');
-  if (!state.workspaceId) { kdom.innerHTML = '<div class="muted small">Select a workspace to see kits.</div>'; return }
+  if (!state.workspaceId) { kdom.innerHTML = '<div class="muted">Select a workspace to see kits.</div>'; return }
   const res = await fetch(`/kits/${state.workspaceId}`)
-  if (res.status === 404) {
-    handleInvalidWorkspace()
-    return
-  }
+  if (res.status === 404) { handleInvalidWorkspace(); return }
   if (!res.ok) { kdom.textContent = 'Error loading kits'; return }
+
   const arr = await res.json(); state.kits = arr
   kdom.innerHTML = ''
-  arr.forEach(k => {
-    const d = document.createElement('div'); d.className = 'kit'
-    d.innerHTML = `<div><strong>${k.name}</strong> <div class='small muted'>${k.description || ''}</div></div>`
-    const actions = document.createElement('div');
-    const openBtn = document.createElement('button'); openBtn.textContent = 'Select'; openBtn.className = 'secondary'
-    openBtn.addEventListener('click', () => {
-      state.lastKitId = k.id;
-      showMessage(`Selected kit: ${k.name} (${k.id})`);
-      document.querySelectorAll('.kit').forEach(kd => kd.classList.remove('selected'));
-      d.classList.add('selected');
-      el('run-rag').disabled = false;
-    })
-    const delBtn = document.createElement('button'); delBtn.textContent = '🗑️'; delBtn.className = 'danger icon-btn'; delBtn.title = 'Delete Kit'
-    delBtn.onclick = (e) => { e.stopPropagation(); deleteKit(k.id) }
 
-    actions.appendChild(openBtn); actions.appendChild(delBtn)
-    d.appendChild(actions)
+  arr.forEach(k => {
+    const d = document.createElement('div');
+    d.className = 'card';
+    d.style.cursor = 'pointer';
+    d.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:start;">
+        <div>
+          <h3 style="margin:0 0 8px 0;">${k.name}</h3>
+          <p class="muted small">${k.description || 'No description'}</p>
+        </div>
+        <button class="icon-btn delete-kit-btn" data-id="${k.id}">🗑️</button>
+      </div>
+    `;
+
+    d.addEventListener('click', (e) => {
+      if (e.target.closest('.delete-kit-btn')) return; // Don't select if deleting
+      selectKit(k);
+    });
+
+    // Delete handler
+    d.querySelector('.delete-kit-btn').addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (!confirm('Delete this kit?')) return;
+      await fetch(`/kits/kit/${k.id}`, { method: 'DELETE' });
+      refreshKits();
+    });
+
     kdom.appendChild(d)
   })
 }
 
+function selectKit(k) {
+  state.lastKitId = k.id;
+  el('rag-section').classList.remove('hidden');
+  // Highlight selected kit visually if we want
+  document.querySelectorAll('#kits .card').forEach(c => c.style.borderColor = '#e2e8f0');
+  // Find the card we just clicked - strictly speaking we should have a ref, but this is fine for now
+}
+
 async function createKit() {
   if (!state.workspaceId) { alert('Create a workspace first'); return }
-  const name = `UI Kit ${Date.now()}`
-  showMessage(`Creating kit "${name}"...`)
+  const name = prompt('Kit Name:', `Kit ${Date.now()}`);
+  if (!name) return;
+
   const res = await fetch(`/kits/${state.workspaceId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, description: 'Created from UI' }) })
-  if (!res.ok) {
-    showMessage(`Error creating kit: ${await res.text()}`, 'error')
-    return
+  if (res.ok) {
+    await refreshKits();
+  } else {
+    alert('Error creating kit');
   }
-  const j = await res.json()
-  state.lastKitId = j.id
-  await refreshKits();
-  showMessage(`Kit "${name}" created. Select it from the list to add assets.`, 'success')
 }
 
-async function addSelectedToKit() {
-  if (!state.lastKitId) { alert('Select or create a kit first (use Kits sidebar).'); return }
-  const checks = Array.from(document.querySelectorAll('#assets input[type=checkbox]:checked'))
-  const ids = checks.map(c => c.dataset.assetId)
-  if (!ids.length) { alert('Select at least one asset'); return }
-  showMessage(`Adding ${ids.length} assets to kit...`)
-  const res = await fetch(`/kits/kit/${state.lastKitId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ asset_ids: ids }) })
-  if (res.ok || res.status === 204) {
-    showMessage(`Successfully added ${ids.length} assets to the selected kit.`, 'success')
-    await refreshKits()
-    return
-  }
-  showMessage(`Error adding assets to kit: ${await res.text()}`, 'error')
-}
-
-function selectAllAssets() {
-  const checks = document.querySelectorAll('#assets input[type=checkbox]')
-  const allChecked = Array.from(checks).every(c => c.checked)
-  checks.forEach(c => c.checked = !allChecked)
-}
-
-async function createShare() {
-  if (!state.lastKitId) { alert('Select a kit first'); return }
-  showMessage('Creating sharing link...')
-  const res = await fetch(`/sharing-links/kit/${state.lastKitId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expires_in_days: 7 }) })
-  if (!res.ok) {
-    showMessage(`Error creating sharing link: ${await res.text()}`, 'error')
-    return
-  }
-  const j = await res.json(); state.lastShare = j
-  const link = `${window.location.origin}/ui/shared.html?token=${j.token}`;
-  const linkHtml = `<div class="share-box fade-in">
-    <div style="font-weight:600; color:#15803d; margin-bottom:8px">Sharing Link Created!</div>
-    <div style="display:flex; gap:8px; align-items:center;">
-      <input value="${link}" readonly style="flex:1; padding:8px; border-radius:4px; border:1px solid #bbf7d0" id="share-link-input" onclick="this.select()">
-      <button class="small" style="background:#15803d; color:white" onclick="navigator.clipboard.writeText('${link}'); this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy', 2000)">Copy</button>
-      <a href="${link}" target="_blank" class="button small secondary" style="text-decoration:none; display:inline-block; padding:8px 12px; border:1px solid #bbf7d0; border-radius:6px; background:white; color:#15803d">Open</a>
-    </div>
-  </div>`
-  showMessage(linkHtml, '')
-}
+// --- RAG ---
 
 async function runRag() {
-  if (!state.workspaceId) { alert('Create a workspace first'); return }
-  const query = el('rag-query').value
-  const use_llm = el('use-llm').checked
-  const model = el('llm-model').value
-  const btn = el('run-rag')
-  const kit_id = state.lastKitId
-  if (!kit_id) { alert('Select or create a kit first to run RAG'); return }
-  const body = { kit_id, query, use_llm, model }
+  if (!state.lastKitId) return;
+  const query = el('rag-query').value;
+  const use_llm = el('use-llm').checked;
+  const btn = el('run-rag');
+
   btn.disabled = true;
-  el('rag-result').textContent = 'Running query...';
+  btn.textContent = 'Running...';
+  el('rag-result').classList.remove('hidden');
+  el('rag-result').textContent = 'Thinking...';
+
   try {
-    const res = await fetch('/rag/query', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-    if (!res.ok) {
-      let msg = await res.text();
-      try { msg = JSON.parse(msg).detail } catch (e) { }
-      el('rag-result').textContent = 'Error: ' + msg;
-      return
-    }
+    const res = await fetch('/rag/query', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kit_id: state.lastKitId, query, use_llm }) })
     const j = await res.json();
-
-    // Try to parse answer as JSON for product cards
-    const productContainer = el('product-results');
-    const textResult = el('rag-result');
-
-    try {
-      const products = JSON.parse(j.answer);
-      if (Array.isArray(products)) {
-        // It's a list of assets -> Render as cards
-        productContainer.innerHTML = '';
-        productContainer.style.display = 'grid';
-        products.forEach(p => productContainer.appendChild(makeAssetCard(p)));
-        textResult.style.display = 'none';
-        return;
-      }
-    } catch (e) {
-      // Not JSON, render as text
-    }
-
-    productContainer.style.display = 'none';
-    textResult.style.display = 'block';
-    textResult.textContent = JSON.stringify(j, null, 2)
+    el('rag-result').textContent = JSON.stringify(j, null, 2);
+  } catch (e) {
+    el('rag-result').textContent = 'Error: ' + e.message;
   } finally {
     btn.disabled = false;
+    btn.textContent = 'Run Query';
   }
 }
 
-// Toggle Quick Actions
-el('toggle-quick-actions').addEventListener('click', () => {
-  const menu = el('quick-actions-menu');
-  const arrow = el('qa-arrow');
-  if (menu.style.display === 'none') {
-    menu.style.display = 'block';
-    arrow.textContent = '▲';
-  } else {
-    menu.style.display = 'none';
-    arrow.textContent = '▼';
-  }
-});
+// --- UI Logic ---
 
-el('del-ws').addEventListener('click', deleteWorkspace)
-
-// Update UI to show/hide delete button based on workspace state
-const originalSetWs = state.workspaceId;
-Object.defineProperty(state, 'workspaceId', {
-  get: function () { return this._workspaceId },
-  set: function (v) {
-    this._workspaceId = v;
-    el('del-ws').style.display = v ? 'block' : 'none';
-  }
-});
-state.workspaceId = originalSetWs; // Trigger setter
-
-
-// wire up
-el('create-ws').addEventListener('click', createWorkspace)
-el('create-asset').addEventListener('click', createAsset)
-el('upload-btn').addEventListener('click', uploadFile)
-el('refresh-assets').addEventListener('click', refreshAssets)
-el('select-all-assets').addEventListener('click', selectAllAssets)
-el('add-assets').addEventListener('click', addSelectedToKit)
-el('create-kit').addEventListener('click', createKit)
-el('create-share').addEventListener('click', createShare)
-el('run-rag').addEventListener('click', runRag)
-el('set-ws').addEventListener('click', setWorkspaceById)
-
-// Wire up quick query buttons
-el('quick-query-count').addEventListener('click', () => { el('rag-query').value = 'Count Assets'; el('use-llm').checked = false; el('llm-model').value = 'none'; runRag(); })
-el('quick-query-types').addEventListener('click', () => { el('rag-query').value = 'File Types'; el('use-llm').checked = false; el('llm-model').value = 'none'; runRag(); })
-el('quick-query-recent').addEventListener('click', () => { el('rag-query').value = 'Recent Files'; el('use-llm').checked = false; el('llm-model').value = 'none'; runRag(); })
-el('quick-query-summary').addEventListener('click', () => { el('rag-query').value = 'Basic Summary'; el('use-llm').checked = false; el('llm-model').value = 'none'; runRag(); })
-el('quick-query-largest').addEventListener('click', () => { el('rag-query').value = 'Largest Files'; el('use-llm').checked = false; el('llm-model').value = 'none'; runRag(); })
-el('quick-query-pdfs').addEventListener('click', () => { el('rag-query').value = 'List PDFs'; el('use-llm').checked = false; el('llm-model').value = 'none'; runRag(); })
-el('quick-query-images').addEventListener('click', () => { el('rag-query').value = 'List Images'; el('use-llm').checked = false; el('llm-model').value = 'none'; runRag(); })
-
-window.addEventListener('load', async () => {
-  el('ws-name').value = `Client Workspace-${Date.now()}`
-  try {
-    const w = localStorage.getItem('youfyi_workspace')
-    if (w) { state.workspaceId = w; el('ws-result').textContent = w; el('ws-id').value = w; }
-  } catch (e) { }
-  if (state.workspaceId) {
-    await refreshAssets();
-    if (state.workspaceId) await refreshKits();
-  }
-})
-
-// Navigation Logic
 function switchView(viewId) {
   ['view-assets', 'view-kits', 'view-settings'].forEach(id => {
     const elView = el(id);
-    if (elView) elView.style.display = (id === viewId) ? 'block' : 'none';
+    if (elView) {
+      if (id === viewId) elView.classList.remove('hidden');
+      else elView.classList.add('hidden');
+    }
   });
 
   ['nav-assets', 'nav-kits', 'nav-settings'].forEach(id => {
@@ -387,8 +322,75 @@ function switchView(viewId) {
   const activeNavId = viewId.replace('view-', 'nav-');
   const elActive = el(activeNavId);
   if (elActive) elActive.classList.add('active');
+
+  // Update Title
+  const titles = { 'view-assets': 'Assets', 'view-kits': 'Kits', 'view-settings': 'Settings' };
+  el('page-title').textContent = titles[viewId];
 }
 
-el('nav-assets').addEventListener('click', () => switchView('view-assets'));
-el('nav-kits').addEventListener('click', () => switchView('view-kits'));
-el('nav-settings').addEventListener('click', () => switchView('view-settings'));
+function toggleCreatePanel(show) {
+  const panel = el('create-asset-panel');
+  if (show === undefined) show = panel.classList.contains('hidden');
+
+  if (show) {
+    panel.classList.remove('hidden');
+    el('btn-new-asset').textContent = 'Close Panel';
+  } else {
+    panel.classList.add('hidden');
+    el('btn-new-asset').innerHTML = '<span>+</span> New Asset';
+  }
+}
+
+// --- Initialization ---
+
+window.addEventListener('load', async () => {
+  // Navigation
+  el('nav-assets').addEventListener('click', () => switchView('view-assets'));
+  el('nav-kits').addEventListener('click', () => switchView('view-kits'));
+  el('nav-settings').addEventListener('click', () => switchView('view-settings'));
+
+  // Creation Panel
+  el('btn-new-asset').addEventListener('click', () => toggleCreatePanel());
+  document.querySelectorAll('.cancel-create').forEach(b => b.addEventListener('click', () => toggleCreatePanel(false)));
+
+  // Tabs
+  el('tab-text').addEventListener('click', () => {
+    el('form-text-asset').classList.remove('hidden');
+    el('form-file-asset').classList.add('hidden');
+    el('tab-text').classList.add('btn-secondary'); // simplified styling logic
+    el('tab-file').classList.add('btn-secondary');
+  });
+  el('tab-file').addEventListener('click', () => {
+    el('form-text-asset').classList.add('hidden');
+    el('form-file-asset').classList.remove('hidden');
+  });
+
+  // Actions
+  el('create-asset').addEventListener('click', createAsset);
+  el('upload-btn').addEventListener('click', uploadFile);
+  el('create-ws').addEventListener('click', createWorkspace);
+  el('set-ws').addEventListener('click', setWorkspaceById);
+  el('del-ws').addEventListener('click', deleteWorkspace);
+  el('create-kit').addEventListener('click', createKit);
+  el('run-rag').addEventListener('click', runRag);
+
+  // Select All
+  el('select-all-assets').addEventListener('change', (e) => {
+    document.querySelectorAll('input[type=checkbox][data-asset-id]').forEach(c => c.checked = e.target.checked);
+  });
+
+  // Init State
+  try {
+    const w = localStorage.getItem('youfyi_workspace')
+    if (w) {
+      state.workspaceId = w;
+      el('ws-result').textContent = w;
+      el('ws-id').value = w;
+    }
+  } catch (e) { }
+
+  if (state.workspaceId) {
+    await refreshAssets();
+    await refreshKits();
+  }
+})

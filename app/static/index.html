@@ -10,175 +10,188 @@
 
 <body>
   <div class="app">
-    <div class="topbar">
-      <h1>You.fyi</h1>
-      <div class="controls">
-        <a href="/docs" class="small muted">API Docs</a>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">
+        <span style="font-size: 24px;">⚡</span> You.fyi
       </div>
-    </div>
-    <div class="container">
-      <aside class="panel sidebar">
-        <nav class="main-nav">
-          <button id="nav-assets" class="nav-item active">Assets</button>
-          <button id="nav-kits" class="nav-item">Kits</button>
-          <button id="nav-settings" class="nav-item">Settings</button>
-        </nav>
-      </aside>
+      <nav class="main-nav">
+        <button id="nav-assets" class="nav-item active">
+          <span class="nav-icon">📄</span> Assets
+        </button>
+        <button id="nav-kits" class="nav-item">
+          <span class="nav-icon">📦</span> Kits
+        </button>
+        <button id="nav-settings" class="nav-item">
+          <span class="nav-icon">⚙️</span> Settings
+        </button>
+      </nav>
+    </aside>
 
-      <main class="panel">
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="breadcrumbs">
+          <span class="muted">Home</span> / <span id="page-title" class="current">Assets</span>
+        </div>
+        <div class="user-menu">
+          <!-- Placeholder for user profile or other top-right actions -->
+          <div
+            style="width: 32px; height: 32px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #64748b;">
+            U</div>
+        </div>
+      </header>
+
+      <!-- Content Scroll Area -->
+      <div class="content-scroll">
+
         <!-- Assets View -->
         <div id="view-assets">
-          <section>
-            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-              <h2>Assets</h2>
-              <div class="controls" style="display:flex; gap: 8px;">
-                <button id="refresh-assets" class="secondary">Refresh</button>
-                <button id="select-all-assets" class="secondary">Select All</button>
-                <button id="add-assets" class="secondary">Add Selected To Kit</button>
-                <button id="create-share" class="secondary">Create Sharing Link</button>
+          <div class="toolbar">
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Search assets..." id="asset-search">
+            </div>
+            <button id="btn-new-asset" class="btn btn-primary">
+              <span>+</span> New Asset
+            </button>
+          </div>
+
+          <!-- Asset Creation Section (Hidden by default) -->
+          <div id="create-asset-panel" class="card hidden">
+            <h3>Create New Asset</h3>
+            <div class="form-group">
+              <label>Asset Type</label>
+              <div style="display: flex; gap: 16px; margin-bottom: 16px;">
+                <button id="tab-text" class="btn btn-secondary">Text Document</button>
+                <button id="tab-file" class="btn btn-secondary">Upload File</button>
               </div>
             </div>
-            <div id="assets" class="assets-list"></div>
-          </section>
 
-          <section>
-            <h2>Create Text Asset</h2>
-            <div class="form-control">
-              <label for="asset-name" class="small muted">Asset Name</label>
-              <input id="asset-name" placeholder="Asset name" value="Intro Doc" />
+            <!-- Text Asset Form -->
+            <div id="form-text-asset">
+              <div class="form-group">
+                <label for="asset-name">Name</label>
+                <input id="asset-name" class="form-control" placeholder="e.g. Project Specs" value="New Document">
+              </div>
+              <div class="form-group">
+                <label for="asset-desc">Description</label>
+                <input id="asset-desc" class="form-control" placeholder="Optional description">
+              </div>
+              <div class="form-group">
+                <label for="asset-content">Content</label>
+                <textarea id="asset-content" class="form-control" rows="4">Start typing...</textarea>
+              </div>
+              <div class="row-actions" style="justify-content: flex-start;">
+                <button id="create-asset" class="btn btn-primary">Create Document</button>
+                <button class="btn btn-secondary cancel-create">Cancel</button>
+              </div>
             </div>
-            <div class="form-control">
-              <label for="asset-desc" class="small muted">Description</label>
-              <input id="asset-desc" placeholder="Description" value="Intro created from UI" />
-            </div>
-            <div class="form-control">
-              <label for="asset-content" class="small muted">Content</label>
-              <textarea id="asset-content" rows="4">This is sample content to demonstrate You.fyi from the UI</textarea>
-            </div>
-            <div class="form-control"><button id="create-asset">Create Text Asset</button></div>
-            <pre id="asset-result" class="small"></pre>
-          </section>
 
-          <section>
-            <h2>Upload File</h2>
-            <div class="form-control">
-              <label for="upload-file" class="small muted">Choose File</label>
-              <input type="file" id="upload-file" />
+            <!-- File Upload Form -->
+            <div id="form-file-asset" class="hidden">
+              <div class="form-group">
+                <label for="upload-file">Choose File</label>
+                <input type="file" id="upload-file" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="upload-name">Name (Optional)</label>
+                <input id="upload-name" class="form-control" placeholder="Keep original filename">
+              </div>
+              <div class="row-actions" style="justify-content: flex-start;">
+                <button id="upload-btn" class="btn btn-primary">Upload File</button>
+                <button class="btn btn-secondary cancel-create">Cancel</button>
+              </div>
             </div>
-            <div class="form-control">
-              <label for="upload-name" class="small muted">File name (optional)</label>
-              <input id="upload-name" placeholder="File name (optional)" />
-            </div>
-            <div class="form-control"><button id="upload-btn">Upload File</button></div>
-            <pre id="upload-result" class="small"></pre>
-          </section>
+            <pre id="asset-result" class="small hidden" style="margin-top: 16px;"></pre>
+          </div>
+
+          <!-- Assets Table -->
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;"><input type="checkbox" id="select-all-assets"></th>
+                <th>Internal name</th>
+                <th>Type</th>
+                <th>Size</th>
+                <th>Last modified</th> <!-- We might not have this data, will use ID or placeholder -->
+                <th class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="assets-table-body">
+              <!-- Rows will be injected here -->
+            </tbody>
+          </table>
+
+          <div id="assets-empty" class="muted" style="text-align: center; padding: 48px; display: none;">
+            No assets found. Create one to get started.
+          </div>
         </div>
 
         <!-- Kits View -->
-        <div id="view-kits" style="display:none">
-          <section>
-            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-              <h2>Kits</h2>
-              <button id="create-kit" class="secondary">Create New Kit</button>
-            </div>
-            <div class="kit-list" id="kits"></div>
-          </section>
+        <div id="view-kits" class="hidden">
+          <div class="toolbar">
+            <h2>Kits</h2>
+            <button id="create-kit" class="btn btn-primary">New Kit</button>
+          </div>
+          <div id="kits"
+            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;"></div>
 
-          <section style="margin-top: 32px;">
-            <h2>RAG Query</h2>
-            <div class="form-control">
-              <label for="rag-query" class="small muted">Query (Select a kit above first)</label>
-              <input id="rag-query" placeholder="Ask something about assets"
-                value="Give a short summary of the assets" />
+          <!-- RAG Section (Visible when kit selected) -->
+          <div id="rag-section" class="card mt-4 hidden">
+            <h3>RAG Playground</h3>
+            <div class="form-group">
+              <label>Query</label>
+              <input id="rag-query" class="form-control" placeholder="Ask something about the assets in this kit...">
             </div>
-            <div class="form-control">
-              <label class="small muted">Quick Actions</label>
-              <div>
-                <button type="button" id="toggle-quick-actions" class="secondary"
-                  style="width:100%; text-align:left; display:flex; justify-content:space-between; align-items:center">
-                  <span>Show Quick Actions</span>
-                  <span id="qa-arrow">▼</span>
-                </button>
-              </div>
-              <div id="quick-actions-menu"
-                style="display:none; margin-top:8px; padding:8px; border:1px solid #eee; border-radius:4px; background:#fafafa">
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                  <button type="button" id="quick-query-count" class="secondary chip">Count Assets</button>
-                  <button type="button" id="quick-query-types" class="secondary chip">File Types</button>
-                  <button type="button" id="quick-query-recent" class="secondary chip">Recent Files</button>
-                  <button type="button" id="quick-query-summary" class="secondary chip">Basic Summary</button>
-                  <button type="button" id="quick-query-largest" class="secondary chip">Largest Files</button>
-                  <button type="button" id="quick-query-pdfs" class="secondary chip">List PDFs</button>
-                  <button type="button" id="quick-query-images" class="secondary chip">List Images</button>
-                </div>
-              </div>
+            <div class="row-actions" style="justify-content: space-between; align-items: center;">
+              <label class="small"><input type="checkbox" id="use-llm" checked /> Use LLM</label>
+              <button id="run-rag" class="btn btn-primary">Run Query</button>
             </div>
-            <div class="form-control">
-              <label for="llm-model" class="small muted">LLM Model (Advanced Queries)</label>
-              <select id="llm-model">
-                <option value="gemini-pro" selected>Gemini Pro</option>
-                <option value="synthetic-grok" disabled>Synthetic Grok (Coming Soon)</option>
-                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-              </select>
-            </div>
-            <label class="small"><input type="checkbox" id="use-llm" checked /> Use LLM</label>
-            <div style="margin-top:8px"><button id="run-rag">Run RAG</button></div>
-
-            <!-- Product Cards Container -->
-            <div id="product-results" class="assets-list" style="margin-top:16px; display:none"></div>
-
-            <pre id="rag-result" class="small"></pre>
-          </section>
+            <pre id="rag-result" class="small mt-4 hidden"></pre>
+          </div>
         </div>
 
         <!-- Settings View -->
-        <div id="view-settings" style="display:none">
-          <section>
-            <h2>Workspace Settings</h2>
-            <div class="form-control">
-              <label for="ws-name" class="small muted">Workspace Name</label>
-              <input id="ws-name" placeholder="e.g. My Project" value="" />
+        <div id="view-settings" class="hidden">
+          <div class="card" style="max-width: 600px;">
+            <h3>Workspace Settings</h3>
+            <div class="form-group">
+              <label for="ws-name">Workspace Name</label>
+              <input id="ws-name" class="form-control" placeholder="My Workspace">
             </div>
-            <div class="form-control">
-              <label for="ws-desc" class="small muted">Description</label>
-              <input id="ws-desc" placeholder="A brief description" value="Workspace for quick testing" />
+            <div class="form-group">
+              <label for="ws-desc">Description</label>
+              <input id="ws-desc" class="form-control" placeholder="Description">
             </div>
-            <div class="form-control">
-              <button id="create-ws">Create Workspace</button>
-            </div>
+            <button id="create-ws" class="btn btn-primary">Create New Workspace</button>
 
-            <hr style="margin: 24px 0; border: 0; border-top: 1px solid #e1e5e9;" />
+            <hr style="margin: 24px 0; border: 0; border-top: 1px solid #e2e8f0;">
 
-            <div class="form-control">
-              <label for="ws-id" class="small muted">Or set from ID</label>
+            <div class="form-group">
+              <label>Switch Workspace</label>
               <div style="display: flex; gap: 8px;">
-                <input id="ws-id" placeholder="Existing workspace id" />
-                <button id="set-ws" class="secondary">Set</button>
+                <input id="ws-id" class="form-control" placeholder="Workspace ID">
+                <button id="set-ws" class="btn btn-secondary">Switch</button>
               </div>
             </div>
-            <div class="form-control">
-              <div class="muted small">Active Workspace ID:</div>
-              <div style="display:flex; justify-content:space-between; align-items:center">
-                <pre id="ws-result" class="small" style="margin:0"></pre>
-                <button id="del-ws" class="danger small" style="display:none">Delete</button>
+
+            <div class="form-group">
+              <label>Current Workspace</label>
+              <div
+                style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                <code id="ws-result" style="color: #64748b;">None</code>
+                <button id="del-ws" class="btn btn-secondary"
+                  style="color: #ef4444; border-color: #fee2e2; background: #fef2f2;">Delete</button>
               </div>
             </div>
-            <pre id="message" class="small"></pre>
-          </section>
+          </div>
         </div>
 
-        <footer style="margin-top:14px;text-align:right">
-          <small class="muted">Minimal UI — for non-technical clients use this or Postman. Docs: <a
-              href="/docs">/docs</a></small>
-          <p class="small muted" style="margin-top: 1rem;">
-            Note: Some errors shown in the browser's developer console may originate from browser extensions and can be
-            safely ignored.
-          </p>
-        </footer>
-      </main>
-    </div>
+      </div>
+    </main>
   </div>
-
   <script src="/ui/app.js"></script>
 </body>
 

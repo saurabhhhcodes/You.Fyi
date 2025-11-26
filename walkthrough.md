@@ -1,40 +1,48 @@
-# Walkthrough - Simplified Dashboard Navigation
+# Walkthrough - UI Redesign
 
-I have simplified the dashboard navigation as requested. The sidebar now contains only three items: **Assets**, **Kits**, and **Settings**. The main content area dynamically switches between these views.
+I have updated the user interface to match the provided design reference. The new design features a dark blue sidebar, a clean table-based asset list, and a full-height layout.
 
 ## Changes
 
-### 1. Navigation Structure
-- **Sidebar**: Replaced the previous mixed content with a clean navigation menu.
+### 1. Visual Design (`style.css`)
+- **Theme**: Implemented a dark blue sidebar (`#0f172a`) with white text, matching the "InventThink" style.
+- **Layout**: Switched to a full-height flexbox layout (`100vh`) to ensure the sidebar and content area stretch correctly.
+- **Typography**: Updated fonts to system sans-serif (Inter/Roboto) for a modern look.
+- **Components**:
+    - **Sidebar**: Added hover effects and active states for navigation items.
+    - **Table**: Created a clean data table style for the asset list with hover rows and action buttons.
+    - **Buttons**: Styled primary (blue) and secondary (white/gray) buttons.
+
+### 2. Structure (`index.html`)
+- **Sidebar**: Replaced the old sidebar with a dedicated `<aside>` containing the logo and navigation.
+- **Header**: Added a top header with breadcrumbs ("Home / Assets") and a user profile placeholder.
 - **Views**:
-    - **Assets**: Contains the asset list, file upload, and text asset creation tools.
-    - **Kits**: Contains the kit list, kit creation, and RAG query interface.
-    - **Settings**: Contains workspace management (create, set ID, delete).
+    - **Assets**: Now displays a toolbar (Search + New Asset) and a data table instead of a card grid.
+    - **Creation Panel**: The "New Asset" button toggles a hidden panel for creating text assets or uploading files, keeping the UI clean.
+    - **Kits & Settings**: Updated to fit the new container structure.
 
-### 2. Files Modified
-
-#### `app/static/index.html`
-- Restructured the `<body>` to implement the new layout.
-- Added `<nav class="main-nav">` in the sidebar.
-- Wrapped content sections in `<div id="view-...">` containers.
-
-#### `app/static/style.css`
-- Added styles for `.main-nav` and `.nav-item`.
-- Adjusted grid layout if necessary (though mostly reused existing grid).
-
-#### `app/static/app.js`
-- Added `switchView(viewId)` function to handle tab switching.
-- Added event listeners to navigation buttons.
-- Preserved all existing logic for fetching and rendering data.
+### 3. Logic (`app.js`)
+- **Table Rendering**: Updated `refreshAssets` to render `<tr>` elements instead of `<div>` cards.
+- **Icons**: Added helper function `fileIcon` to display appropriate icons (📄, 🖼️, etc.) in the table.
+- **Interactivity**:
+    - Added logic to toggle the "New Asset" panel.
+    - Implemented tab switching between "Text Document" and "Upload File" modes.
+    - Preserved all existing API integration (Workspaces, Assets, Kits, RAG).
 
 ## Verification Results
 
 ### Manual Verification
-- **Navigation**: Clicking "Assets", "Kits", or "Settings" should toggle the visibility of the respective sections and update the active state of the navigation button.
-- **Assets View**: Should show the "Assets" header, list, and creation forms.
-- **Kits View**: Should show the "Kits" header, list, and RAG query section.
-- **Settings View**: Should show the "Workspace Settings" header and workspace controls.
-- **Functionality**: Creating assets, kits, and workspaces should continue to work as the underlying IDs and JavaScript logic were preserved.
+- **Layout**: The app should now take up the full browser window height.
+- **Sidebar**: Should be dark blue with "Assets", "Kits", and "Settings".
+- **Assets View**:
+    - Should show a table with columns: Checkbox, Name (with icon), Type, Size, Modified, Actions.
+    - "New Asset" button should toggle the creation form.
+    - Search bar should be present (visual only for now, or functional if implemented).
+- **Functionality**:
+    - Creating a workspace should still work.
+    - Uploading files and creating text assets should still work.
+    - Deleting assets should work via the trash icon in the table row.
+    - Switching tabs (Assets/Kits/Settings) should update the main content area and breadcrumbs.
 
 ## Next Steps
-- The user can verify the changes by refreshing the dashboard in their browser.
+- The user can verify the changes by refreshing the dashboard.
