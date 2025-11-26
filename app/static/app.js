@@ -541,7 +541,7 @@ async function addSelectedToKit() {
     return
   }
 
-  const btn = el('add-assets');
+  const btn = el('add-to-kit-btn');
   setLoading(btn, true, 'Adding...');
 
   const res = await fetch(`/kits/kit/${state.lastKitId}`, {
@@ -732,7 +732,7 @@ async function createShare() {
     return
   }
 
-  const btn = el('create-share');
+  const btn = el('share-kit-btn');
   setLoading(btn, true, 'Creating...');
 
   const res = await fetch(`/sharing-links/kit/${state.lastKitId}`, {
