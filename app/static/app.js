@@ -32,11 +32,26 @@ function showMessage(msg, type = 'info') {
 
 // --- Workspace ---
 
+// Helper to toggle loading state
+function setLoading(btn, isLoading, text = 'Loading...') {
+  if (isLoading) {
+    btn.dataset.originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner"></span> ${text}`;
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = btn.dataset.originalText || 'Submit';
+  }
+}
+
+// --- Workspace ---
+
 async function createWorkspace() {
   const name = el('ws-name').value
   const desc = el('ws-desc').value
   const btn = el('create-ws')
-  btn.disabled = true
+
+  setLoading(btn, true, 'Creating...');
   try {
     const res = await fetch('/workspaces/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, description: desc }) })
     if (res.ok) {
@@ -53,8 +68,57 @@ async function createWorkspace() {
     showToast('Error', text, 'error')
   } catch (e) {
     showToast('Network Error', e.message, 'error')
-  } finally { btn.disabled = false }
+  } finally {
+    setLoading(btn, false);
+  }
 }
+
+// ... (existing code) ...
+
+async function createAsset() {
+  if (!state.workspaceId) { showToast('Action Required', 'Create a workspace first', 'error'); return }
+  const name = el('asset-name').value
+  const desc = el('asset-desc').value
+  const content = el('asset-content').value
+  const payload = { name, description: desc, content, asset_type: 'document' }
+  const btn = el('create-asset');
+
+  setLoading(btn, true, 'Creating...');
+  const res = await fetch(`/assets/${state.workspaceId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+  setLoading(btn, false);
+
+  if (!res.ok) {
+    showToast('Error', `Error creating asset: ${await res.text()}`, 'error')
+    return
+  }
+  toggleCreatePanel(false);
+  await refreshAssets()
+}
+
+async function uploadFile() {
+  if (!state.workspaceId) { showToast('Action Required', 'Create a workspace first', 'error'); return }
+  const fileInput = el('upload-file')
+  if (!fileInput.files.length) { showToast('Input Required', 'Choose a file to upload', 'error'); return }
+  const file = fileInput.files[0]
+  const name = el('upload-name').value || file.name
+  const form = new FormData()
+  form.append('file', file)
+  form.append('name', name)
+  form.append('description', 'Uploaded from UI')
+  const btn = el('upload-btn');
+
+  setLoading(btn, true, 'Uploading...');
+  const res = await fetch(`/assets/${state.workspaceId}/upload`, { method: 'POST', body: form })
+  setLoading(btn, false);
+
+  if (!res.ok) { showToast('Error', `Error uploading: ${await res.text()}`, 'error'); return }
+
+  toggleCreatePanel(false);
+  await refreshAssets()
+}
+
+// ... (existing code) ...
+
 
 function setWorkspaceById() {
   const id = el('ws-id').value.trim()
