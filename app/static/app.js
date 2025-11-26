@@ -324,14 +324,24 @@ async function refreshKits() {
         <div>
           <h3 style="margin:0 0 8px 0;">${k.name}</h3>
           <p class="muted small">${k.description || 'No description'}</p>
+          <p class="muted small">📦 ${k.assets?.length || 0} assets</p>
         </div>
-        <button class="icon-btn delete-kit-btn" data-id="${k.id}">🗑️</button>
+        <div style="display: flex; gap: 8px;">
+          <button class="icon-btn download-kit-btn" data-id="${k.id}" data-name="${k.name}" title="Download all assets">⬇️</button>
+          <button class="icon-btn delete-kit-btn" data-id="${k.id}" title="Delete kit">🗑️</button>
+        </div>
       </div>
     `;
 
     d.addEventListener('click', (e) => {
-      if (e.target.closest('.delete-kit-btn')) return; // Don't select if deleting
+      if (e.target.closest('.delete-kit-btn') || e.target.closest('.download-kit-btn')) return; // Don't select if deleting or downloading
       selectKit(k);
+    });
+
+    // Download handler
+    d.querySelector('.download-kit-btn').addEventListener('click', async (e) => {
+      e.stopPropagation();
+      await downloadKit(k.id, k.name);
     });
 
     // Delete handler
@@ -385,6 +395,31 @@ async function addSelectedToKit() {
     return
   }
   showToast('Error', `Error adding assets to kit: ${await res.text()}`, 'error')
+}
+
+async function downloadKit(kitId, kitName) {
+  const kit = state.kits.find(k => k.id === kitId);
+  if (!kit || !kit.assets || kit.assets.length === 0) {
+    showToast('No Assets', 'This kit has no assets to download', 'error');
+    return;
+  }
+
+  showToast('Downloading', `Downloading ${kit.assets.length} assets from "${kitName}"...`, 'info');
+
+  // Download each asset
+  for (const asset of kit.assets) {
+    const link = document.createElement('a');
+    link.href = `/assets/asset/${asset.id}/download`;
+    link.download = asset.name || 'asset';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Small delay between downloads
+    await new Promise(resolve => setTimeout(resolve, 300));
+  }
+
+  showToast('Complete', `Downloaded ${kit.assets.length} assets`, 'success');
 }
 
 async function createShare() {
