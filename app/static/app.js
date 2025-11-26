@@ -66,6 +66,150 @@ function setLoading(btn, isLoading, text = 'Loading...') {
 // --- Workspace ---
 
 async function createWorkspace() {
+  const id = el('ws-id').value.trim();
+  const desc = el('ws-desc').value.trim();
+  if (!id) { showToast('Input Required', 'Enter a workspace id', 'error'); return }
+
+  const btn = el('create-ws');
+  setLoading(btn, true);
+
+  const res = await fetch('/workspaces/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: id, description: desc }) })
+  setLoading(btn, false);
+
+  if (res.ok) {
+    const j = await res.json();
+    state.workspaceId = j.id;
+    el('ws-result').textContent = j.id;
+    try { localStorage.setItem('youfyi_workspace', j.id) } catch (e) { }
+    await refreshAssets(); await refreshKits()
+    showToast('Workspace Created', `Workspace "${id}" created successfully`, 'success');
+  } else {
+    showToast('Error', `Error creating workspace: ${await res.text()}`, 'error');
+  }
+}
+
+// Modal-based creation functions
+async function createWorkspaceFromModal() {
+  const name = el('modal-ws-name').value.trim();
+  const desc = el('modal-ws-desc').value.trim();
+  if (!name) { showToast('Input Required', 'Enter a workspace name', 'error'); return }
+
+  const btn = el('modal-create-ws-btn');
+  setLoading(btn, true);
+
+  const res = await fetch('/workspaces/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, description: desc }) })
+  setLoading(btn, false);
+
+  if (res.ok) {
+    const j = await res.json();
+    state.workspaceId = j.id;
+    el('ws-result').textContent = j.id;
+    try { localStorage.setItem('youfyi_workspace', j.id) } catch (e) { }
+    closeModal('modal-create-workspace');
+    el('modal-ws-name').value = '';
+    el('modal-ws-desc').value = '';
+    await refreshAssets(); await refreshKits();
+    showToast('Workspace Created', `Workspace "${name}" created successfully`, 'success');
+  } else {
+    showToast('Error', `Error creating workspace: ${await res.text()}`, 'error');
+  }
+}
+
+async function createAssetFromModal() {
+  if (!state.workspaceId) { showToast('Action Required', 'Create a workspace first', 'error'); return }
+
+  const type = el('modal-asset-type').value;
+  const name = el('modal-asset-name').value.trim();
+  const desc = el('modal-asset-desc').value.trim();
+
+  if (!name) { showToast('Input Required', 'Enter an asset name', 'error'); return }
+
+  const btn = el('modal-create-asset-btn');
+  setLoading(btn, true);
+
+  let res;
+  if (type === 'file') {
+    const file = el('modal-asset-file').files[0];
+    if (!file) { showToast('File Required', 'Select a file to upload', 'error'); setLoading(btn, false); return }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('name', name);
+    formData.append('description', desc);
+    res = await fetch(`/assets/${state.workspaceId}/upload`, { method: 'POST', body: formData });
+  } else {
+    const content = el('modal-asset-content').value.trim();
+    res = await fetch(`/assets/${state.workspaceId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, description: desc, content, asset_type: type })
+    });
+  }
+
+  setLoading(btn, false);
+
+  if (res.ok) {
+    closeModal('modal-create-asset');
+    el('modal-asset-name').value = '';
+    el('modal-asset-desc').value = '';
+    el('modal-asset-content').value = '';
+    el('modal-asset-file').value = '';
+    await refreshAssets();
+    showToast('Asset Created', `Asset "${name}" created successfully`, 'success');
+  } else {
+    showToast('Error', `Error creating asset: ${await res.text()}`, 'error');
+  }
+}
+
+async function createKitFromModal() {
+  if (!state.workspaceId) { showToast('Action Required', 'Create a workspace first', 'error'); return }
+
+  const name = el('modal-kit-name').value.trim();
+  const desc = el('modal-kit-desc').value.trim();
+  if (!name) { showToast('Input Required', 'Enter a kit name', 'error'); return }
+
+  const btn = el('modal-create-kit-btn');
+  setLoading(btn, true);
+
+  const res = await fetch(`/kits/${state.workspaceId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, description: desc }) })
+  setLoading(btn, false);
+
+  if (res.ok) {
+    const j = await res.json();
+    state.lastKitId = j.id;
+    closeModal('modal-create-kit');
+    el('modal-kit-name').value = '';
+    el('modal-kit-desc').value = '';
+    showToast('Kit Created', `Kit "${name}" created successfully.`, 'success');
+
+    // Switch to Kits view to show the new kit
+    // switchView('view-kits');
+
+    // Refresh kits to display the new one
+    await refreshKits();
+
+    // Scroll to the new kit (it will be the last one)
+    setTimeout(() => {
+      const kitsContainer = el('kits');
+      const newKitCard = kitsContainer.lastElementChild;
+      if (newKitCard) {
+        newKitCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // Add a brief highlight effect
+        newKitCard.style.transition = 'all 0.3s ease';
+        newKitCard.style.transform = 'scale(1.02)';
+        newKitCard.style.boxShadow = '0 8px 16px rgba(37, 99, 235, 0.2)';
+        setTimeout(() => {
+          newKitCard.style.transform = '';
+          newKitCard.style.boxShadow = '';
+        }, 600);
+      }
+    }, 100);
+  } else {
+    showToast('Error', 'Error creating kit', 'error');
+  }
+}
+
+async function createWorkspace_old() { // Renamed original createWorkspace to createWorkspace_old
   const name = el('ws-name').value
   const desc = el('ws-desc').value
   const btn = el('create-ws')
@@ -728,35 +872,32 @@ window.addEventListener('load', async () => {
   el('nav-kits').addEventListener('click', () => switchView('view-kits'));
   el('nav-settings').addEventListener('click', () => switchView('view-settings'));
 
-  // Creation Panel
-  el('btn-new-asset').addEventListener('click', () => toggleCreatePanel());
-  el('btn-upload-asset').addEventListener('click', () => {
-    toggleCreatePanel(true);
-    // Switch to upload tab
-    el('form-text-asset').classList.add('hidden');
-    el('form-file-asset').classList.remove('hidden');
-  });
-  document.querySelectorAll('.cancel-create').forEach(b => b.addEventListener('click', () => toggleCreatePanel(false)));
+  // Modal Triggers
+  el('btn-new-asset').addEventListener('click', () => openModal('modal-create-asset'));
+  el('create-kit').addEventListener('click', () => openModal('modal-create-kit'));
+  el('create-ws').addEventListener('click', () => openModal('modal-create-workspace'));
 
-  // Tabs
-  el('tab-text').addEventListener('click', () => {
-    el('form-text-asset').classList.remove('hidden');
-    el('form-file-asset').classList.add('hidden');
-    el('tab-text').classList.add('btn-secondary'); // simplified styling logic
-    el('tab-file').classList.add('btn-secondary');
-  });
-  el('tab-file').addEventListener('click', () => {
-    el('form-text-asset').classList.add('hidden');
-    el('form-file-asset').classList.remove('hidden');
+  // Modal Actions
+  el('modal-create-ws-btn').addEventListener('click', createWorkspaceFromModal);
+  el('modal-create-asset-btn').addEventListener('click', createAssetFromModal);
+  el('modal-create-kit-btn').addEventListener('click', createKitFromModal);
+
+  // Asset type selector in modal
+  el('modal-asset-type').addEventListener('change', (e) => {
+    const contentGroup = el('modal-asset-content-group');
+    const fileGroup = el('modal-asset-file-group');
+    if (e.target.value === 'file') {
+      contentGroup.classList.add('hidden');
+      fileGroup.classList.remove('hidden');
+    } else {
+      contentGroup.classList.remove('hidden');
+      fileGroup.classList.add('hidden');
+    }
   });
 
   // Actions
-  el('create-asset').addEventListener('click', createAsset);
-  el('upload-btn').addEventListener('click', uploadFile);
-  el('create-ws').addEventListener('click', createWorkspace);
   el('set-ws').addEventListener('click', setWorkspaceById);
   el('del-ws').addEventListener('click', deleteWorkspace);
-  el('create-kit').addEventListener('click', createKit);
   el('run-rag').addEventListener('click', runRag);
 
   // Asset Actions
@@ -774,26 +915,38 @@ window.addEventListener('load', async () => {
   });
 
   // Quick Actions Toggle
-  el('toggle-quick-actions').addEventListener('click', () => {
-    const menu = el('quick-actions-menu');
-    const arrow = el('qa-arrow');
-    if (menu.style.display === 'none') {
-      menu.style.display = 'block';
-      arrow.textContent = '▲';
-    } else {
-      menu.style.display = 'none';
-      arrow.textContent = '▼';
-    }
-  });
+  const toggleQA = el('toggle-quick-actions');
+  if (toggleQA) {
+    toggleQA.addEventListener('click', () => {
+      const menu = el('quick-actions-menu');
+      const arrow = el('qa-arrow');
+      if (menu.style.display === 'none') {
+        menu.style.display = 'block';
+        arrow.textContent = '▲';
+      } else {
+        menu.style.display = 'none';
+        arrow.textContent = '▼';
+      }
+    });
+  }
 
   // Quick Query Buttons
-  el('quick-query-count').addEventListener('click', () => { el('rag-query').value = 'Count Assets'; runRag(); });
-  el('quick-query-types').addEventListener('click', () => { el('rag-query').value = 'File Types'; runRag(); });
-  el('quick-query-recent').addEventListener('click', () => { el('rag-query').value = 'Recent Files'; runRag(); });
-  el('quick-query-summary').addEventListener('click', () => { el('rag-query').value = 'Basic Summary'; runRag(); });
-  el('quick-query-largest').addEventListener('click', () => { el('rag-query').value = 'Largest Files'; runRag(); });
-  el('quick-query-pdfs').addEventListener('click', () => { el('rag-query').value = 'List PDFs'; runRag(); });
-  el('quick-query-images').addEventListener('click', () => { el('rag-query').value = 'List Images'; runRag(); });
+  const quickButtons = [
+    ['quick-query-count', 'Count Assets'],
+    ['quick-query-types', 'File Types'],
+    ['quick-query-recent', 'Recent Files'],
+    ['quick-query-summary', 'Basic Summary'],
+    ['quick-query-largest', 'Largest Files'],
+    ['quick-query-pdfs', 'List PDFs'],
+    ['quick-query-images', 'List Images']
+  ];
+
+  quickButtons.forEach(([id, query]) => {
+    const btn = el(id);
+    if (btn) {
+      btn.addEventListener('click', () => { el('rag-query').value = query; runRag(); });
+    }
+  });
 
   // Init State
   try {
