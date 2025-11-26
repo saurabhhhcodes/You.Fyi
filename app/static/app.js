@@ -253,11 +253,11 @@ async function createShare() {
   }
   const j = await res.json(); state.lastShare = j
   const link = `${window.location.origin}/ui/shared.html?token=${j.token}`;
-  const linkHtml = `<div class="share-box">
+  const linkHtml = `<div class="share-box fade-in">
     <div style="font-weight:600; color:#15803d; margin-bottom:8px">Sharing Link Created!</div>
     <div style="display:flex; gap:8px; align-items:center;">
-      <input value="${link}" readonly style="flex:1; padding:8px" id="share-link-input" onclick="this.select()">
-      <button class="small" onclick="navigator.clipboard.writeText('${link}'); this.textContent='Copied!'">Copy</button>
+      <input value="${link}" readonly style="flex:1; padding:8px; border-radius:4px; border:1px solid #bbf7d0" id="share-link-input" onclick="this.select()">
+      <button class="small" style="background:#15803d; color:white" onclick="navigator.clipboard.writeText('${link}'); this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy', 2000)">Copy</button>
       <a href="${link}" target="_blank" class="button small secondary" style="text-decoration:none; display:inline-block; padding:8px 12px; border:1px solid #bbf7d0; border-radius:6px; background:white; color:#15803d">Open</a>
     </div>
   </div>`
