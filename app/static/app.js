@@ -26,6 +26,7 @@ async function createWorkspace() {
       el('ws-result').textContent = state.workspaceId
       try { localStorage.setItem('youfyi_workspace', state.workspaceId) } catch (e) { }
       showMessage(`Workspace "${name}" created successfully. You can now create assets.`, 'success')
+      el('ws-name').value = `Client Workspace-${Date.now()}` // Regenerate name to prevent duplicates
       await refreshAssets(); await refreshKits()
       return
     }
@@ -359,11 +360,14 @@ el('quick-query-largest').addEventListener('click', () => { el('rag-query').valu
 el('quick-query-pdfs').addEventListener('click', () => { el('rag-query').value = 'List PDFs'; el('use-llm').checked = false; el('llm-model').value = 'none'; runRag(); })
 el('quick-query-images').addEventListener('click', () => { el('rag-query').value = 'List Images'; el('use-llm').checked = false; el('llm-model').value = 'none'; runRag(); })
 
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
   el('ws-name').value = `Client Workspace-${Date.now()}`
   try {
     const w = localStorage.getItem('youfyi_workspace')
     if (w) { state.workspaceId = w; el('ws-result').textContent = w; el('ws-id').value = w; }
   } catch (e) { }
-  if (state.workspaceId) { refreshAssets(); refreshKits() }
+  if (state.workspaceId) {
+    await refreshAssets();
+    if (state.workspaceId) await refreshKits();
+  }
 })
