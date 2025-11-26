@@ -90,28 +90,92 @@ async function createWorkspace() {
 
 // Modal-based creation functions
 async function createWorkspaceFromModal() {
-  const name = el('modal-ws-name').value.trim();
-  const desc = el('modal-ws-desc').value.trim();
-  if (!name) { showToast('Input Required', 'Enter a workspace name', 'error'); return }
+  const displayName = el('modal-ws-name').value.trim();
+  const slug = el('modal-ws-slug').value.trim();
+
+  if (!displayName) { showToast('Input Required', 'Enter a display name', 'error'); return }
+  if (!slug) { showToast('Input Required', 'Enter a workspace slug', 'error'); return }
 
   const btn = el('modal-create-ws-btn');
   setLoading(btn, true);
 
-  const res = await fetch('/workspaces/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, description: desc }) })
+  // Map slug to name (ID) and display name to description
+  const res = await fetch('/workspaces/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: slug, description: displayName })
+  })
+
   setLoading(btn, false);
 
   if (res.ok) {
     const j = await res.json();
     state.workspaceId = j.id;
-    el('ws-result').textContent = j.id;
     try { localStorage.setItem('youfyi_workspace', j.id) } catch (e) { }
+
     closeModal('modal-create-workspace');
     el('modal-ws-name').value = '';
-    el('modal-ws-desc').value = '';
-    await refreshAssets(); await refreshKits();
-    showToast('Workspace Created', `Workspace "${name}" created successfully`, 'success');
+    el('modal-ws-slug').value = '';
+
+    await refreshWorkspaces(); // Refresh the list
+    await refreshAssets();
+    await refreshKits();
+
+    showToast('Workspace Created', `Workspace "${displayName}" created successfully`, 'success');
   } else {
     showToast('Error', `Error creating workspace: ${await res.text()}`, 'error');
+  }
+}
+
+async function refreshWorkspaces() {
+  const list = el('workspace-list');
+  if (!list) return;
+
+  try {
+    const res = await fetch('/workspaces/');
+    if (!res.ok) return;
+    const workspaces = await res.json();
+
+    list.innerHTML = '';
+
+    if (workspaces.length === 0) {
+      list.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-secondary);">No workspaces found. Create one to get started.</div>';
+      return;
+    }
+
+    workspaces.forEach(ws => {
+      const item = document.createElement('div');
+      item.className = `workspace-item ${state.workspaceId === ws.id ? 'active' : ''}`;
+      item.style.cssText = 'padding: 16px 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border);';
+
+      // Generate initial and color
+      const initial = (ws.description || ws.name || '?')[0].toUpperCase();
+      const colors = ['#fef3c7', '#dbeafe', '#dcfce7', '#fce7f3', '#f3f4f6'];
+      const textColors = ['#d97706', '#2563eb', '#16a34a', '#db2777', '#4b5563'];
+      const colorIndex = (ws.name.charCodeAt(0) || 0) % colors.length;
+
+      item.innerHTML = `
+        <div style="width: 32px; height: 32px; background: ${colors[colorIndex]}; color: ${textColors[colorIndex]}; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 600;">${initial}</div>
+        <div style="flex: 1;">
+          <div style="font-weight: 500; font-size: 14px; color: var(--text-primary);">${ws.description || ws.name}</div>
+          <div style="font-size: 12px; color: var(--text-secondary);">/${ws.name}</div>
+        </div>
+        ${state.workspaceId === ws.id ? '<span style="color: var(--primary); font-size: 12px; font-weight: 500;">Active</span>' : ''}
+      `;
+
+      item.addEventListener('click', async () => {
+        state.workspaceId = ws.id;
+        try { localStorage.setItem('youfyi_workspace', ws.id) } catch (e) { }
+        await refreshWorkspaces(); // Re-render to update active state
+        await refreshAssets();
+        await refreshKits();
+        showToast('Workspace Switched', `Switched to ${ws.description || ws.name}`, 'success');
+      });
+
+      list.appendChild(item);
+    });
+  } catch (e) {
+    console.error('Failed to refresh workspaces:', e);
   }
 }
 
@@ -909,8 +973,8 @@ window.addEventListener('load', async () => {
   });
 
   // Actions
-  el('set-ws').addEventListener('click', setWorkspaceById);
-  el('del-ws').addEventListener('click', deleteWorkspace);
+  // el('set-ws').addEventListener('click', setWorkspaceById);
+  // el('del-ws').addEventListener('click', deleteWorkspace);
   el('run-rag').addEventListener('click', runRag);
 
   // Asset Actions
@@ -961,11 +1025,10 @@ window.addEventListener('load', async () => {
     const w = localStorage.getItem('youfyi_workspace')
     if (w) {
       state.workspaceId = w;
-      el('ws-result').textContent = w;
-      el('ws-id').value = w;
     }
   } catch (e) { }
 
+  await refreshWorkspaces();
   if (state.workspaceId) {
     await refreshAssets();
     await refreshKits();
