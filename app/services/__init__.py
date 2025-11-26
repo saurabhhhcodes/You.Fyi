@@ -41,7 +41,7 @@ class LLMService:
     @staticmethod
     def _openai_query(query: str, context: str, model: str) -> str:
         if not openai_client:
-            return f"OpenAI client not available. Context: {context[:100]}... Query: {query}"
+            return f"LLM not configured. Here is the relevant content:\n\n{context[:500]}..."
         try:
             response = openai_client.chat.completions.create(
                 model=model,
@@ -59,7 +59,7 @@ class LLMService:
     @staticmethod
     def _gemini_query(query: str, context: str) -> str:
         if not gemini_client:
-            return f"Gemini client not available. Context: {context[:100]}... Query: {query}"
+            return f"LLM not configured. Here is the relevant content:\n\n{context[:500]}..."
         try:
             prompt = f"Context:\n{context}\n\nQuestion: {query}\n\nAnswer concisely and directly based on the context. Avoid unnecessary words."
             response = gemini_client.generate_content(prompt)
