@@ -166,7 +166,7 @@ async function refreshWorkspaces() {
       item.addEventListener('click', async () => {
         state.workspaceId = ws.id;
         try { localStorage.setItem('youfyi_workspace', ws.id) } catch (e) { }
-        await refreshWorkspaces(); // Re-render to update active state
+        await refreshWorkspaces();
         await refreshAssets();
         await refreshKits();
         showToast('Workspace Switched', `Switched to ${ws.description || ws.name}`, 'success');
@@ -177,6 +177,71 @@ async function refreshWorkspaces() {
   } catch (e) {
     console.error('Failed to refresh workspaces:', e);
   }
+}
+
+// --- Kits ---
+
+async function refreshKits() {
+  if (!state.workspaceId) return;
+  const tbody = el('kit-list');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 24px;">Loading...</td></tr>';
+
+  try {
+    const res = await fetch(`/kits/${state.workspaceId}`);
+    const kits = await res.json();
+    tbody.innerHTML = '';
+
+    if (kits.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 24px; color: var(--text-secondary);">No kits found. Create one to get started.</td></tr>';
+      return;
+    }
+
+    kits.forEach(k => {
+      const tr = document.createElement('tr');
+      if (state.lastKitId === k.id) tr.classList.add('selected');
+
+      tr.innerHTML = `
+        <td>
+          <div style="font-weight: 500; color: var(--text-primary);">${k.name}</div>
+        </td>
+        <td><span class="badge badge-gray">None</span></td>
+        <td>${k.asset_ids.length} item${k.asset_ids.length !== 1 ? 's' : ''}</td>
+        <td style="color: var(--text-secondary); font-size: 13px;">${new Date().toLocaleDateString()}</td>
+        <td style="text-align: right;">
+          <button class="btn-icon" style="color: var(--text-secondary);">⋮</button>
+        </td>
+      `;
+
+      tr.addEventListener('click', () => {
+        state.lastKitId = k.id;
+        // Update selection styling
+        tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected'));
+        tr.classList.add('selected');
+
+        // Update details panel
+        updateKitDetailsPanel(k);
+      });
+
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    console.error(e);
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: #ef4444;">Error loading kits</td></tr>';
+  }
+}
+
+function updateKitDetailsPanel(kit) {
+  el('kit-details-empty').classList.add('hidden');
+  el('kit-details-content').classList.remove('hidden');
+
+  el('detail-kit-name').textContent = kit.name;
+  el('detail-kit-name-input').value = kit.name;
+  el('detail-kit-assets-count').value = `${kit.asset_ids.length} item${kit.asset_ids.length !== 1 ? 's' : ''}`;
+
+  // Reset RAG
+  el('rag-result').classList.add('hidden');
+  el('rag-result').textContent = '';
+  el('rag-query').value = '';
 }
 
 async function createAssetFromModal() {
@@ -869,6 +934,8 @@ async function createKit() {
 
 // --- RAG ---
 
+// --- RAG ---
+
 async function runRag() {
   if (!state.lastKitId) return;
   const query = el('rag-query').value;
@@ -888,14 +955,14 @@ async function runRag() {
     el('rag-result').textContent = 'Error: ' + e.message;
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Run Query';
+    btn.textContent = 'Ask';
   }
 }
 
 // --- UI Logic ---
 
 function switchView(viewId) {
-  ['view-assets', 'view-kits', 'view-settings'].forEach(id => {
+  ['view-workspaces', 'view-assets', 'view-kits', 'view-settings'].forEach(id => {
     const elView = el(id);
     if (elView) {
       if (id === viewId) elView.classList.remove('hidden');
@@ -903,17 +970,16 @@ function switchView(viewId) {
     }
   });
 
-  ['nav-assets', 'nav-kits', 'nav-settings'].forEach(id => {
+  ['nav-workspaces', 'nav-assets', 'nav-kits', 'nav-settings'].forEach(id => {
     const elNav = el(id);
-    if (elNav) elNav.classList.remove('active');
+    if (elNav) {
+      if (id.replace('nav-', 'view-') === viewId) elNav.classList.add('active');
+      else elNav.classList.remove('active');
+    }
   });
 
-  const activeNavId = viewId.replace('view-', 'nav-');
-  const elActive = el(activeNavId);
-  if (elActive) elActive.classList.add('active');
-
   // Update Title
-  const titles = { 'view-assets': 'Assets', 'view-kits': 'Kits', 'view-settings': 'Settings' };
+  const titles = { 'view-workspaces': 'Workspaces', 'view-assets': 'Assets', 'view-kits': 'Kits', 'view-settings': 'Settings' };
   el('page-title').textContent = titles[viewId];
 }
 
@@ -934,6 +1000,7 @@ function toggleCreatePanel(show) {
 
 window.addEventListener('load', async () => {
   // Navigation
+  el('nav-workspaces').addEventListener('click', () => switchView('view-workspaces'));
   el('nav-assets').addEventListener('click', () => switchView('view-assets'));
   el('nav-kits').addEventListener('click', () => switchView('view-kits'));
   el('nav-settings').addEventListener('click', () => switchView('view-settings'));
@@ -973,8 +1040,6 @@ window.addEventListener('load', async () => {
   });
 
   // Actions
-  // el('set-ws').addEventListener('click', setWorkspaceById);
-  // el('del-ws').addEventListener('click', deleteWorkspace);
   el('run-rag').addEventListener('click', runRag);
 
   // Asset Actions
@@ -1016,7 +1081,12 @@ window.addEventListener('load', async () => {
   quickButtons.forEach(([id, query]) => {
     const btn = el(id);
     if (btn) {
-      btn.addEventListener('click', () => { el('rag-query').value = query; runRag(); });
+      btn.addEventListener('click', () => {
+        el('rag-query').value = query;
+        el('quick-actions-menu').style.display = 'none';
+        el('qa-arrow').textContent = '▼';
+        runRag();
+      });
     }
   });
 
