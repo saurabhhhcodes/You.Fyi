@@ -610,7 +610,29 @@ async function createKit() {
     const j = await res.json();
     state.lastKitId = j.id;
     showToast('Kit Created', `Kit "${name}" created successfully.`, 'success');
+
+    // Switch to Kits view to show the new kit
+    switchView('view-kits');
+
+    // Refresh kits to display the new one
     await refreshKits();
+
+    // Scroll to the new kit (it will be the last one)
+    setTimeout(() => {
+      const kitsContainer = el('kits');
+      const newKitCard = kitsContainer.lastElementChild;
+      if (newKitCard) {
+        newKitCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // Add a brief highlight effect
+        newKitCard.style.transition = 'all 0.3s ease';
+        newKitCard.style.transform = 'scale(1.02)';
+        newKitCard.style.boxShadow = '0 8px 16px rgba(37, 99, 235, 0.2)';
+        setTimeout(() => {
+          newKitCard.style.transform = '';
+          newKitCard.style.boxShadow = '';
+        }, 600);
+      }
+    }, 100);
   } else {
     showToast('Error', 'Error creating kit', 'error');
   }
