@@ -422,6 +422,147 @@ async function downloadKit(kitId, kitName) {
   showToast('Complete', `Downloaded ${kit.assets.length} assets`, 'success');
 }
 
+// --- Export/Import Functions ---
+
+async function exportWorkspace() {
+  if (!state.workspaceId) {
+    showToast('Action Required', 'Create or select a workspace first', 'error');
+    return;
+  }
+
+  // Fetch workspace data
+  const wsRes = await fetch(`/workspaces/${state.workspaceId}`);
+  if (!wsRes.ok) {
+    showToast('Error', 'Failed to fetch workspace data', 'error');
+    return;
+  }
+  const workspace = await wsRes.json();
+
+  // Fetch all assets
+  const assetsRes = await fetch(`/assets/${state.workspaceId}`);
+  const assets = assetsRes.ok ? await assetsRes.json() : [];
+
+  // Fetch all kits
+  const kitsRes = await fetch(`/kits/${state.workspaceId}`);
+  const kits = kitsRes.ok ? await kitsRes.json() : [];
+
+  // Create export object
+  const exportData = {
+    version: '1.0',
+    exported_at: new Date().toISOString(),
+    workspace: {
+      name: workspace.name,
+      description: workspace.description
+    },
+    assets: assets.map(a => ({
+      name: a.name,
+      description: a.description,
+      content: a.content,
+      asset_type: a.asset_type,
+      mime_type: a.mime_type
+    })),
+    kits: kits.map(k => ({
+      name: k.name,
+      description: k.description,
+      asset_names: k.assets?.map(a => a.name) || []
+    }))
+  };
+
+  // Download as JSON
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${workspace.name.replace(/[^a-z0-9]/gi, '_')}_export.json`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+
+  showToast('Export Complete', `Workspace "${workspace.name}" exported successfully`, 'success');
+}
+
+async function importWorkspace() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'application/json';
+
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+
+      if (!data.version || !data.workspace) {
+        showToast('Invalid File', 'This does not appear to be a valid workspace export', 'error');
+        return;
+      }
+
+      showToast('Importing', 'Creating workspace and importing data...', 'info');
+
+      // Create new workspace
+      const wsRes = await fetch('/workspaces/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `${data.workspace.name} (Imported)`,
+          description: data.workspace.description
+        })
+      });
+
+      if (!wsRes.ok) {
+        showToast('Error', 'Failed to create workspace', 'error');
+        return;
+      }
+
+      const newWorkspace = await wsRes.json();
+      state.workspaceId = newWorkspace.id;
+      el('ws-result').textContent = newWorkspace.id;
+      try { localStorage.setItem('youfyi_workspace', newWorkspace.id) } catch (e) { }
+
+      // Import assets
+      const assetMap = {};
+      for (const asset of data.assets || []) {
+        const assetRes = await fetch(`/assets/${newWorkspace.id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(asset)
+        });
+        if (assetRes.ok) {
+          const newAsset = await assetRes.json();
+          assetMap[asset.name] = newAsset.id;
+        }
+      }
+
+      // Import kits
+      for (const kit of data.kits || []) {
+        const assetIds = kit.asset_names.map(name => assetMap[name]).filter(Boolean);
+        await fetch(`/kits/${newWorkspace.id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: kit.name,
+            description: kit.description,
+            asset_ids: assetIds
+          })
+        });
+      }
+
+      await refreshAssets();
+      await refreshKits();
+
+      showToast('Import Complete', `Imported ${data.assets?.length || 0} assets and ${data.kits?.length || 0} kits`, 'success');
+
+    } catch (error) {
+      showToast('Import Failed', error.message, 'error');
+    }
+  };
+
+  input.click();
+}
+
 async function createShare() {
   if (!state.lastKitId) {
     showToast('Action Required', 'Select a kit first', 'error');
@@ -548,6 +689,12 @@ window.addEventListener('load', async () => {
 
   // Creation Panel
   el('btn-new-asset').addEventListener('click', () => toggleCreatePanel());
+  el('btn-upload-asset').addEventListener('click', () => {
+    toggleCreatePanel(true);
+    // Switch to upload tab
+    el('form-text-asset').classList.add('hidden');
+    el('form-file-asset').classList.remove('hidden');
+  });
   document.querySelectorAll('.cancel-create').forEach(b => b.addEventListener('click', () => toggleCreatePanel(false)));
 
   // Tabs
@@ -575,6 +722,10 @@ window.addEventListener('load', async () => {
   el('refresh-assets').addEventListener('click', refreshAssets);
   el('add-assets').addEventListener('click', addSelectedToKit);
   el('create-share').addEventListener('click', createShare);
+
+  // Export/Import
+  el('export-workspace').addEventListener('click', exportWorkspace);
+  el('import-workspace').addEventListener('click', importWorkspace);
 
   // Select All
   el('select-all-assets').addEventListener('change', (e) => {

@@ -57,6 +57,9 @@
               <button id="refresh-assets" class="btn btn-secondary">Refresh</button>
               <button id="add-assets" class="btn btn-secondary">Add to Kit</button>
               <button id="create-share" class="btn btn-secondary">Share</button>
+              <button id="btn-upload-asset" class="btn btn-secondary">
+                <span>📤</span> Upload
+              </button>
               <button id="btn-new-asset" class="btn btn-primary">
                 <span>+</span> New Asset
               </button>
@@ -138,7 +141,15 @@
         <div id="view-kits" class="hidden">
           <div class="toolbar">
             <h2>Kits</h2>
-            <button id="create-kit" class="btn btn-primary">New Kit</button>
+            <div style="display: flex; gap: 8px;">
+              <button id="export-workspace" class="btn btn-secondary" title="Export workspace as JSON">
+                <span>📦</span> Export Workspace
+              </button>
+              <button id="import-workspace" class="btn btn-secondary" title="Import workspace from JSON">
+                <span>📥</span> Import Workspace
+              </button>
+              <button id="create-kit" class="btn btn-primary">New Kit</button>
+            </div>
           </div>
           <div id="kits"
             style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;"></div>
