@@ -46,6 +46,22 @@ function setWorkspaceById() {
   showMessage('Workspace set to: ' + id)
 }
 
+async function deleteWorkspace() {
+  if (!state.workspaceId) return
+  if (!confirm('Delete current workspace? This will delete all assets and kits inside it.')) return
+  const res = await fetch(`/workspaces/${state.workspaceId}`, { method: 'DELETE' })
+  if (res.ok) {
+    showMessage('Workspace deleted', 'success')
+    state.workspaceId = null
+    state.lastKitId = null
+    el('ws-result').textContent = ''
+    try { localStorage.removeItem('youfyi_workspace') } catch (e) { }
+    refreshAssets(); refreshKits()
+  } else {
+    showMessage('Error deleting workspace', 'error')
+  }
+}
+
 async function createAsset() {
   if (!state.workspaceId) { alert('Create a workspace first'); return }
   const name = el('asset-name').value
@@ -103,9 +119,9 @@ function makeAssetCard(a) {
   meta.appendChild(title); meta.appendChild(desc); meta.appendChild(info)
   const actions = document.createElement('div'); actions.className = 'actions'
   const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.dataset.assetId = a.id
-  const dl = document.createElement('a'); dl.className = 'download-link'; dl.textContent = 'Download'; dl.href = `/assets/asset/${a.id}/download`
-  dl.setAttribute('download', '')
-  actions.appendChild(checkbox); actions.appendChild(dl)
+  const delBtn = document.createElement('button'); delBtn.textContent = 'Delete'; delBtn.className = 'danger small'; delBtn.style.marginLeft = '8px'
+  delBtn.onclick = () => deleteAsset(a.id)
+  actions.appendChild(checkbox); actions.appendChild(dl); actions.appendChild(delBtn)
   wrap.appendChild(icon); wrap.appendChild(meta); wrap.appendChild(actions)
   // if image show thumbnail
   if (a.mime_type && a.mime_type.startsWith('image/')) {
@@ -113,6 +129,13 @@ function makeAssetCard(a) {
     meta.insertBefore(img, title)
   }
   return wrap
+}
+
+async function deleteAsset(id) {
+  if (!confirm('Delete this asset?')) return
+  const res = await fetch(`/assets/asset/${id}`, { method: 'DELETE' })
+  if (res.ok) { showMessage('Asset deleted', 'success'); await refreshAssets() }
+  else showMessage('Error deleting asset', 'error')
 }
 
 async function refreshAssets() {
@@ -125,6 +148,16 @@ async function refreshAssets() {
   arr.forEach(a => container.appendChild(makeAssetCard(a)))
 }
 
+async function deleteKit(id) {
+  if (!confirm('Delete this kit?')) return
+  const res = await fetch(`/kits/kit/${id}`, { method: 'DELETE' })
+  if (res.ok) {
+    showMessage('Kit deleted', 'success')
+    if (state.lastKitId === id) state.lastKitId = null
+    await refreshKits()
+  } else showMessage('Error deleting kit', 'error')
+}
+
 async function refreshKits() {
   const kdom = el('kits');
   if (!state.workspaceId) { kdom.innerHTML = '<div class="muted small">Select a workspace to see kits.</div>'; return }
@@ -135,6 +168,7 @@ async function refreshKits() {
   arr.forEach(k => {
     const d = document.createElement('div'); d.className = 'kit'
     d.innerHTML = `<div><strong>${k.name}</strong> <div class='small muted'>${k.description || ''}</div></div>`
+    const actions = document.createElement('div');
     const openBtn = document.createElement('button'); openBtn.textContent = 'Select'; openBtn.className = 'secondary'
     openBtn.addEventListener('click', () => {
       state.lastKitId = k.id;
@@ -143,7 +177,11 @@ async function refreshKits() {
       d.classList.add('selected');
       el('run-rag').disabled = false;
     })
-    d.appendChild(openBtn)
+    const delBtn = document.createElement('button'); delBtn.textContent = '🗑️'; delBtn.className = 'danger icon-btn'; delBtn.title = 'Delete Kit'
+    delBtn.onclick = (e) => { e.stopPropagation(); deleteKit(k.id) }
+
+    actions.appendChild(openBtn); actions.appendChild(delBtn)
+    d.appendChild(actions)
     kdom.appendChild(d)
   })
 }
@@ -204,7 +242,12 @@ async function runRag() {
   el('rag-result').textContent = 'Running query...';
   try {
     const res = await fetch('/rag/query', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-    if (!res.ok) { const txt = await res.text(); el('rag-result').textContent = 'Error: ' + txt; return }
+    if (!res.ok) {
+      let msg = await res.text();
+      try { msg = JSON.parse(msg).detail } catch (e) { }
+      el('rag-result').textContent = 'Error: ' + msg;
+      return
+    }
     const j = await res.json();
 
     // Try to parse answer as JSON for product cards
@@ -245,6 +288,20 @@ el('toggle-quick-actions').addEventListener('click', () => {
     arrow.textContent = '▼';
   }
 });
+
+el('del-ws').addEventListener('click', deleteWorkspace)
+
+// Update UI to show/hide delete button based on workspace state
+const originalSetWs = state.workspaceId;
+Object.defineProperty(state, 'workspaceId', {
+  get: function () { return this._workspaceId },
+  set: function (v) {
+    this._workspaceId = v;
+    el('del-ws').style.display = v ? 'block' : 'none';
+  }
+});
+state.workspaceId = originalSetWs; // Trigger setter
+
 
 // wire up
 el('create-ws').addEventListener('click', createWorkspace)
