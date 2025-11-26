@@ -283,9 +283,35 @@
     </div>
   </div>
 
+  <!-- Sharing Link Modal -->
+  <div id="modal-share-link" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Sharing Link Created</h3>
+        <button class="modal-close" onclick="closeModal('modal-share-link')">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 12px; color: var(--text-secondary);">Share this link to give others access to your kit:
+        </p>
+        <div
+          style="background: var(--bg-body); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 12px;">
+          <input id="share-link-input" type="text" readonly class="form-control"
+            style="font-family: monospace; font-size: 13px;">
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary);">Link expires in 7 days. Click to copy to clipboard.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modal-share-link')">Close</button>
+        <button id="copy-share-link" class="btn btn-primary">Copy Link</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast-container"></div>
   <script src="/ui/app.js"></script>
 </body>
 
 
 </html>
+```

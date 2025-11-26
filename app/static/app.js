@@ -752,14 +752,16 @@ async function createShare() {
   state.lastShare = j
   const link = `${window.location.origin}/ui/shared.html?token=${j.token}`;
 
-  showToast('Sharing Link Created', link, 'success')
+  // Show link in permanent modal
+  el('share-link-input').value = link;
+  openModal('modal-share-link');
 
   // Copy to clipboard
   try {
     await navigator.clipboard.writeText(link);
     showToast('Copied', 'Link copied to clipboard!', 'success')
   } catch (e) {
-    console.log('Clipboard copy failed', e);
+    console.error('Failed to copy:', e)
   }
 }
 
@@ -881,6 +883,17 @@ window.addEventListener('load', async () => {
   el('modal-create-ws-btn').addEventListener('click', createWorkspaceFromModal);
   el('modal-create-asset-btn').addEventListener('click', createAssetFromModal);
   el('modal-create-kit-btn').addEventListener('click', createKitFromModal);
+
+  // Copy share link button
+  el('copy-share-link').addEventListener('click', async () => {
+    const link = el('share-link-input').value;
+    try {
+      await navigator.clipboard.writeText(link);
+      showToast('Copied', 'Link copied to clipboard!', 'success');
+    } catch (e) {
+      console.error('Failed to copy:', e);
+    }
+  });
 
   // Asset type selector in modal
   el('modal-asset-type').addEventListener('change', (e) => {
