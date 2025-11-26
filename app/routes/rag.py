@@ -168,7 +168,7 @@ def query_rag_via_sharing_link(token: str, request: RagQueryRequest, db: Session
     if not kit.assets:
         raise HTTPException(status_code=400, detail="Kit has no assets")
     
-    model_to_use = request.model or "gemini-pro"
+    model_to_use = request.model or "gpt-3.5-turbo"
 
     try:
         answer, sources = RAGService.retrieve_and_answer(
