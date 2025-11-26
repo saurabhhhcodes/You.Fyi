@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -11,6 +12,7 @@
       margin: 40px auto;
       padding: 20px;
     }
+
     .chat-box {
       border: 1px solid #eee;
       border-radius: 8px;
@@ -21,22 +23,26 @@
       background: #fafafa;
       margin-bottom: 16px;
     }
+
     .message {
       margin-bottom: 12px;
       padding: 8px 12px;
       border-radius: 8px;
       max-width: 80%;
     }
+
     .message.user {
       background: #e3f2fd;
       margin-left: auto;
       color: #0d47a1;
     }
+
     .message.bot {
       background: #fff;
       border: 1px solid #ddd;
       color: #333;
     }
+
     .sources {
       font-size: 0.8em;
       color: #666;
@@ -46,15 +52,16 @@
     }
   </style>
 </head>
+
 <body>
   <div class="app">
     <div class="topbar">
       <h1>You.fyi <span style="font-weight:normal; opacity:0.7">Shared Access</span></h1>
     </div>
-    
+
     <div class="shared-container panel">
       <div id="loading" class="muted">Loading shared content...</div>
-      
+
       <div id="content" style="display:none">
         <header style="margin-bottom: 24px; border-bottom: 1px solid #eee; padding-bottom: 16px;">
           <h2 id="kit-name" style="margin-bottom: 8px;"></h2>
@@ -63,16 +70,29 @@
 
         <section>
           <h3>Ask about this Kit</h3>
-          <div class="chat-box" id="chat-history">
-            <div class="message bot">Hello! I can answer questions about the documents in this kit. What would you like to know?</div>
+
+          <!-- Quick Actions -->
+          <div style="margin-bottom: 16px;">
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px" id="quick-actions">
+              <button class="small secondary" onclick="setQuery('Count Assets')">Count Assets</button>
+              <button class="small secondary" onclick="setQuery('File Types')">File Types</button>
+              <button class="small secondary" onclick="setQuery('Recent Files')">Recent Files</button>
+              <button class="small secondary" onclick="setQuery('Basic Summary')">Basic Summary</button>
+            </div>
           </div>
-          
+
+          <div class="chat-box" id="chat-history">
+            <div class="message bot">Hello! I can answer questions about the documents in this kit. What would you like
+              to know?</div>
+          </div>
+
           <div class="form-control" style="display:flex; gap:8px">
             <input id="query-input" placeholder="Type your question here..." style="flex:1" />
             <button id="send-btn">Send</button>
           </div>
           <div class="form-control">
-             <label class="small"><input type="checkbox" id="use-llm" checked /> Use LLM (Uncheck for keyword search)</label>
+            <label class="small"><input type="checkbox" id="use-llm" checked /> Use LLM (Uncheck for keyword
+              search)</label>
           </div>
         </section>
       </div>
@@ -83,4 +103,5 @@
 
   <script src="/ui/shared.js"></script>
 </body>
+
 </html>

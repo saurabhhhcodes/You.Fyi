@@ -253,7 +253,12 @@ async function createShare() {
   }
   const j = await res.json(); state.lastShare = j
   const link = `${window.location.origin}/ui/shared.html?token=${j.token}`;
-  showMessage(`Sharing link created! <a href="${link}" target="_blank">Open Shared Page</a>`, 'success')
+  const linkHtml = `<div style="display:flex; gap:8px; align-items:center; margin-top:8px">
+    <input value="${link}" readonly style="flex:1; padding:4px" id="share-link-input">
+    <button class="small" onclick="navigator.clipboard.writeText('${link}'); this.textContent='Copied!'">Copy</button>
+    <a href="${link}" target="_blank" class="button small secondary">Open</a>
+  </div>`
+  showMessage(`Sharing link created!<br>${linkHtml}`, 'success')
 }
 
 async function runRag() {

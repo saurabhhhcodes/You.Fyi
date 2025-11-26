@@ -27,7 +27,7 @@ async function init() {
     // Actually, for now, let's just enable the chat. The user might not need to see the kit name if the API doesn't expose it easily to the public token.
     // BUT, looking at the requirements, "Final access page - as-is from source" implies we should show something.
     // Let's try to fetch the kit info using the token if possible, or just show "Shared Kit".
-    
+
     // For now, we'll just show the chat interface.
     el('loading').style.display = 'none';
     el('content').style.display = 'block';
@@ -72,16 +72,16 @@ async function sendQuery() {
     if (!res.ok) throw new Error(await res.text());
 
     const data = await res.json();
-    
+
     // Remove loading message
     document.getElementById(loadingId).remove();
 
     // Show answer
     let answerText = data.answer;
     if (data.sources && data.sources.length) {
-        // We don't have asset names here easily unless the backend returns them.
-        // The backend returns asset IDs in 'sources'.
-        // Let's just show the answer for now.
+      // We don't have asset names here easily unless the backend returns them.
+      // The backend returns asset IDs in 'sources'.
+      // Let's just show the answer for now.
     }
     addMessage(answerText, 'bot');
 
@@ -110,5 +110,14 @@ el('send-btn').addEventListener('click', sendQuery);
 el('query-input').addEventListener('keypress', e => {
   if (e.key === 'Enter') sendQuery();
 });
+
+function setQuery(q) {
+  el('query-input').value = q;
+  // Auto-send for quick actions
+  sendQuery();
+}
+
+// Expose setQuery to global scope for HTML buttons
+window.setQuery = setQuery;
 
 init();
