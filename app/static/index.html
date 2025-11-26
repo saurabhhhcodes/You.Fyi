@@ -39,7 +39,10 @@
         </div>
         <div class="form-control">
           <div class="muted small">Active Workspace ID:</div>
-          <pre id="ws-result" class="small"></pre>
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <pre id="ws-result" class="small" style="margin:0"></pre>
+            <button id="del-ws" class="danger small" style="display:none">Delete</button>
+          </div>
         </div>
         <pre id="message" class="small"></pre>
 
@@ -89,6 +92,7 @@
             <h2>Assets</h2>
             <div class="controls" style="display:flex; gap: 8px;">
               <button id="refresh-assets" class="secondary">Refresh</button>
+              <button id="select-all-assets" class="secondary">Select All</button>
               <button id="add-assets" class="secondary">Add Selected To Kit</button>
               <button id="create-share" class="secondary">Create Sharing Link</button>
             </div>

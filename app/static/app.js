@@ -216,6 +216,12 @@ async function addSelectedToKit() {
   showMessage(`Error adding assets to kit: ${await res.text()}`, 'error')
 }
 
+function selectAllAssets() {
+  const checks = document.querySelectorAll('#assets input[type=checkbox]')
+  const allChecked = Array.from(checks).every(c => c.checked)
+  checks.forEach(c => c.checked = !allChecked)
+}
+
 async function createShare() {
   if (!state.lastKitId) { alert('Select a kit first'); return }
   showMessage('Creating sharing link...')
@@ -308,8 +314,9 @@ el('create-ws').addEventListener('click', createWorkspace)
 el('create-asset').addEventListener('click', createAsset)
 el('upload-btn').addEventListener('click', uploadFile)
 el('refresh-assets').addEventListener('click', refreshAssets)
-el('create-kit').addEventListener('click', createKit)
+el('select-all-assets').addEventListener('click', selectAllAssets)
 el('add-assets').addEventListener('click', addSelectedToKit)
+el('create-kit').addEventListener('click', createKit)
 el('create-share').addEventListener('click', createShare)
 el('run-rag').addEventListener('click', runRag)
 el('set-ws').addEventListener('click', setWorkspaceById)
