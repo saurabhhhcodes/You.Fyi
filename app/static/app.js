@@ -901,9 +901,8 @@ window.addEventListener('load', async () => {
   el('run-rag').addEventListener('click', runRag);
 
   // Asset Actions
-  el('refresh-assets').addEventListener('click', refreshAssets);
-  el('add-assets').addEventListener('click', addSelectedToKit);
-  el('create-share').addEventListener('click', createShare);
+  el('add-to-kit-btn').addEventListener('click', addSelectedToKit);
+  el('share-kit-btn').addEventListener('click', createShare);
 
   // Export/Import
   el('export-workspace').addEventListener('click', exportWorkspace);
