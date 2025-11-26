@@ -299,12 +299,21 @@ function handleInvalidWorkspace() {
 async function refreshKits() {
   const kdom = el('kits');
   if (!state.workspaceId) { kdom.innerHTML = '<div class="muted">Select a workspace to see kits.</div>'; return }
+
+  console.log('Fetching kits for workspace:', state.workspaceId);
   const res = await fetch(`/kits/${state.workspaceId}`)
   if (res.status === 404) { handleInvalidWorkspace(); return }
   if (!res.ok) { kdom.textContent = 'Error loading kits'; return }
 
-  const arr = await res.json(); state.kits = arr
+  const arr = await res.json();
+  console.log('Kits received:', arr);
+  state.kits = arr
   kdom.innerHTML = ''
+
+  if (arr.length === 0) {
+    kdom.innerHTML = '<div class="muted" style="padding: 24px; text-align: center;">No kits yet. Create one to get started.</div>';
+    return;
+  }
 
   arr.forEach(k => {
     const d = document.createElement('div');
@@ -422,6 +431,9 @@ async function createKit() {
 
   const res = await fetch(`/kits/${state.workspaceId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, description: 'Created from UI' }) })
   if (res.ok) {
+    const j = await res.json();
+    state.lastKitId = j.id;
+    showToast('Kit Created', `Kit "${name}" created successfully.`, 'success');
     await refreshKits();
   } else {
     showToast('Error', 'Error creating kit', 'error');
