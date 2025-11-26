@@ -119,6 +119,8 @@ function makeAssetCard(a) {
   meta.appendChild(title); meta.appendChild(desc); meta.appendChild(info)
   const actions = document.createElement('div'); actions.className = 'actions'
   const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.dataset.assetId = a.id
+  const dl = document.createElement('a'); dl.className = 'download-link'; dl.textContent = 'Download'; dl.href = `/assets/asset/${a.id}/download`
+  dl.setAttribute('download', '')
   const delBtn = document.createElement('button'); delBtn.textContent = 'Delete'; delBtn.className = 'danger small'; delBtn.style.marginLeft = '8px'
   delBtn.onclick = () => deleteAsset(a.id)
   actions.appendChild(checkbox); actions.appendChild(dl); actions.appendChild(delBtn)
