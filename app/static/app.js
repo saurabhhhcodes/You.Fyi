@@ -30,6 +30,25 @@ function showMessage(msg, type = 'info') {
   showToast(type === 'error' ? 'Error' : 'Success', msg, type);
 }
 
+// --- Modal Helpers ---
+
+function openModal(modalId) {
+  const modal = el(modalId);
+  if (modal) {
+    modal.classList.remove('hidden');
+  }
+}
+
+function closeModal(modalId) {
+  const modal = el(modalId);
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+}
+
+// Make closeModal global for onclick handlers
+window.closeModal = closeModal;
+
 // --- Workspace ---
 
 // Helper to toggle loading state

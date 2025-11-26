@@ -58,55 +58,6 @@
             </button>
           </div>
 
-          <!-- Asset Creation Section (Hidden by default) -->
-          <div id="create-asset-panel" class="card hidden">
-            <h3>Create New Asset</h3>
-            <div class="form-group">
-              <label>Asset Type</label>
-              <div style="display: flex; gap: 16px; margin-bottom: 16px;">
-                <button id="tab-text" class="btn btn-secondary">Text Document</button>
-                <button id="tab-file" class="btn btn-secondary">Upload File</button>
-              </div>
-            </div>
-
-            <!-- Text Asset Form -->
-            <div id="form-text-asset">
-              <div class="form-group">
-                <label for="asset-name">Name</label>
-                <input id="asset-name" class="form-control" placeholder="e.g. Project Specs" value="New Document">
-              </div>
-              <div class="form-group">
-                <label for="asset-desc">Description</label>
-                <input id="asset-desc" class="form-control" placeholder="Optional description">
-              </div>
-              <div class="form-group">
-                <label for="asset-content">Content</label>
-                <textarea id="asset-content" class="form-control" rows="4">Start typing...</textarea>
-              </div>
-              <div class="row-actions" style="justify-content: flex-start;">
-                <button id="create-asset" class="btn btn-primary">Create Document</button>
-                <button class="btn btn-secondary cancel-create">Cancel</button>
-              </div>
-            </div>
-
-            <!-- File Upload Form -->
-            <div id="form-file-asset" class="hidden">
-              <div class="form-group">
-                <label for="upload-file">Choose File</label>
-                <input type="file" id="upload-file" class="form-control">
-              </div>
-              <div class="form-group">
-                <label for="upload-name">Name (Optional)</label>
-                <input id="upload-name" class="form-control" placeholder="Keep original filename">
-              </div>
-              <div class="row-actions" style="justify-content: flex-start;">
-                <button id="upload-btn" class="btn btn-primary">Upload File</button>
-                <button class="btn btn-secondary cancel-create">Cancel</button>
-              </div>
-            </div>
-            <pre id="asset-result" class="small hidden" style="margin-top: 16px;"></pre>
-          </div>
-
           <!-- Assets Table -->
           <table class="data-table">
             <thead>
@@ -235,8 +186,102 @@
       </div>
     </main>
   </div>
+
+  <!-- Modal Dialogs -->
+
+  <!-- Workspace Creation Modal -->
+  <div id="modal-create-workspace" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Create New Workspace</h3>
+        <button class="modal-close" onclick="closeModal('modal-create-workspace')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="modal-ws-name">Display name *</label>
+          <input id="modal-ws-name" class="form-control" placeholder="My Workspace">
+        </div>
+        <div class="form-group">
+          <label for="modal-ws-desc">Description</label>
+          <input id="modal-ws-desc" class="form-control" placeholder="Optional description">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modal-create-workspace')">Cancel</button>
+        <button id="modal-create-ws-btn" class="btn btn-primary">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Asset Creation Modal -->
+  <div id="modal-create-asset" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Create New Asset</h3>
+        <button class="modal-close" onclick="closeModal('modal-create-asset')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="modal-asset-type">Type *</label>
+          <select id="modal-asset-type" class="form-control">
+            <option value="document">Message</option>
+            <option value="file">File</option>
+            <option value="video">Video</option>
+            <option value="website">Website</option>
+            <option value="embed">Embed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="modal-asset-name">Name *</label>
+          <input id="modal-asset-name" class="form-control" placeholder="Asset name">
+        </div>
+        <div class="form-group">
+          <label for="modal-asset-desc">Description</label>
+          <input id="modal-asset-desc" class="form-control" placeholder="Optional description">
+        </div>
+        <div class="form-group" id="modal-asset-content-group">
+          <label for="modal-asset-content">Content</label>
+          <textarea id="modal-asset-content" class="form-control" rows="4" placeholder="Enter content..."></textarea>
+        </div>
+        <div class="form-group hidden" id="modal-asset-file-group">
+          <label for="modal-asset-file">Choose File</label>
+          <input type="file" id="modal-asset-file" class="form-control">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modal-create-asset')">Cancel</button>
+        <button id="modal-create-asset-btn" class="btn btn-primary">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kit Creation Modal -->
+  <div id="modal-create-kit" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Create New Kit</h3>
+        <button class="modal-close" onclick="closeModal('modal-create-kit')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="modal-kit-name">Kit Name *</label>
+          <input id="modal-kit-name" class="form-control" placeholder="My Kit">
+        </div>
+        <div class="form-group">
+          <label for="modal-kit-desc">Description</label>
+          <input id="modal-kit-desc" class="form-control" placeholder="Optional description">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modal-create-kit')">Cancel</button>
+        <button id="modal-create-kit-btn" class="btn btn-primary">Create</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast-container"></div>
   <script src="/ui/app.js"></script>
 </body>
+
 
 </html>
