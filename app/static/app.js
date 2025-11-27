@@ -338,19 +338,18 @@ async function createKitFromModal() {
     await refreshKits();
 
     // Scroll to the new kit (it will be the last one)
+    // Scroll to the new kit (it will be the last one)
     setTimeout(() => {
-      const kitsContainer = el('kits');
-      const newKitCard = kitsContainer.lastElementChild;
-      if (newKitCard) {
-        newKitCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      const kitsContainer = el('kit-list');
+      const newKitRow = kitsContainer.lastElementChild;
+      if (newKitRow) {
+        newKitRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         // Add a brief highlight effect
-        newKitCard.style.transition = 'all 0.3s ease';
-        newKitCard.style.transform = 'scale(1.02)';
-        newKitCard.style.boxShadow = '0 8px 16px rgba(37, 99, 235, 0.2)';
+        newKitRow.style.transition = 'background-color 0.5s ease';
+        newKitRow.style.backgroundColor = '#f0f9ff';
         setTimeout(() => {
-          newKitCard.style.transform = '';
-          newKitCard.style.boxShadow = '';
-        }, 600);
+          newKitRow.style.backgroundColor = '';
+        }, 1000);
       }
     }, 100);
   } else {
@@ -565,7 +564,7 @@ async function deleteAsset(id) {
 
 async function refreshAssets() {
   if (!state.workspaceId) {
-    el('assets-table-body').innerHTML = '';
+    el('asset-list').innerHTML = '';
     el('assets-empty').style.display = 'block';
     el('assets-empty').textContent = 'Please select or create a workspace first.';
     return;
@@ -581,7 +580,7 @@ async function refreshAssets() {
   const arr = await res.json()
   state.assets = arr
 
-  const tbody = el('assets-table-body');
+  const tbody = el('asset-list');
   tbody.innerHTML = '';
 
   if (arr.length === 0) {
@@ -600,80 +599,102 @@ async function refreshAssets() {
 
 function handleInvalidWorkspace() {
   state.workspaceId = null
-  el('ws-result').textContent = 'None'
   try { localStorage.removeItem('youfyi_workspace') } catch (e) { }
-  el('assets-table-body').innerHTML = ''
-  el('kits').innerHTML = ''
+  el('asset-list').innerHTML = ''
+  el('kit-list').innerHTML = ''
 }
 
 // --- Kits ---
 
 async function refreshKits() {
-  const kdom = el('kits');
-  if (!state.workspaceId) { kdom.innerHTML = '<div class="muted">Select a workspace to see kits.</div>'; return }
+  const tbody = el('kit-list');
+  if (!state.workspaceId) { tbody.innerHTML = ''; return }
 
   console.log('Fetching kits for workspace:', state.workspaceId);
   const res = await fetch(`/kits/${state.workspaceId}`)
   if (res.status === 404) { handleInvalidWorkspace(); return }
-  if (!res.ok) { kdom.textContent = 'Error loading kits'; return }
+  if (!res.ok) { console.error('Error loading kits'); return }
 
   const arr = await res.json();
   console.log('Kits received:', arr);
   state.kits = arr
-  kdom.innerHTML = ''
+  tbody.innerHTML = ''
 
   if (arr.length === 0) {
-    kdom.innerHTML = '<div class="muted" style="padding: 24px; text-align: center;">No kits yet. Create one to get started.</div>';
+    // Optional: Show empty state row
     return;
   }
 
   arr.forEach(k => {
-    const d = document.createElement('div');
-    d.className = 'card';
-    d.style.cursor = 'pointer';
-    d.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:start;">
-        <div>
-          <h3 style="margin:0 0 8px 0;">${k.name}</h3>
-          <p class="muted small">${k.description || 'No description'}</p>
-          <p class="muted small">📦 ${k.assets?.length || 0} assets</p>
-        </div>
-        <div style="display: flex; gap: 8px;">
-          <button class="icon-btn download-kit-btn" data-id="${k.id}" data-name="${k.name}" title="Download all assets">⬇️</button>
-          <button class="icon-btn delete-kit-btn" data-id="${k.id}" title="Delete kit">🗑️</button>
-        </div>
-      </div>
+    const tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.onclick = (e) => {
+      if (e.target.closest('button')) return;
+      selectKit(k);
+    };
+
+    // Internal Name
+    const tdName = document.createElement('td');
+    tdName.innerHTML = `
+        <div style="font-weight:500; color:#1e293b;">${k.name}</div>
+        <div style="font-size:12px; color:#94a3b8;">${k.description || ''}</div>
     `;
 
-    d.addEventListener('click', (e) => {
-      if (e.target.closest('.delete-kit-btn') || e.target.closest('.download-kit-btn')) return; // Don't select if deleting or downloading
-      selectKit(k);
-    });
+    // Sharing
+    const tdSharing = document.createElement('td');
+    tdSharing.textContent = 'Private';
 
-    // Download handler
-    d.querySelector('.download-kit-btn').addEventListener('click', async (e) => {
-      e.stopPropagation();
-      await downloadKit(k.id, k.name);
-    });
+    // Assets
+    const tdAssets = document.createElement('td');
+    tdAssets.textContent = `${k.assets?.length || 0} assets`;
 
-    // Delete handler
-    d.querySelector('.delete-kit-btn').addEventListener('click', async (e) => {
+    // Last Modified
+    const tdMod = document.createElement('td');
+    tdMod.textContent = new Date().toLocaleDateString();
+
+    // Actions
+    const tdActions = document.createElement('td');
+    tdActions.className = 'text-right';
+    tdActions.innerHTML = `
+        <button class="icon-btn delete-kit-btn" data-id="${k.id}" title="Delete">🗑️</button>
+    `;
+
+    tr.appendChild(tdName);
+    tr.appendChild(tdSharing);
+    tr.appendChild(tdAssets);
+    tr.appendChild(tdMod);
+    tr.appendChild(tdActions);
+
+    tbody.appendChild(tr);
+  });
+
+  // Wire up delete buttons
+  document.querySelectorAll('.delete-kit-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
       e.stopPropagation();
       if (!confirm('Delete this kit?')) return;
-      await fetch(`/kits/kit/${k.id}`, { method: 'DELETE' });
+      await fetch(`/kits/kit/${btn.dataset.id}`, { method: 'DELETE' });
       refreshKits();
     });
-
-    kdom.appendChild(d)
-  })
+  });
 }
 
 function selectKit(k) {
   state.lastKitId = k.id;
-  el('rag-section').classList.remove('hidden');
-  // Highlight selected kit visually if we want
-  document.querySelectorAll('#kits .card').forEach(c => c.style.borderColor = '#e2e8f0');
-  // Find the card we just clicked - strictly speaking we should have a ref, but this is fine for now
+
+  // Update details panel
+  el('detail-kit-name').textContent = k.name;
+  el('detail-kit-name-input').value = k.name;
+  el('detail-kit-assets-count').value = `${k.assets?.length || 0} assets`;
+
+  // Show content, hide empty state
+  el('kit-details-content').classList.remove('hidden');
+  el('kit-details-empty').style.display = 'none';
+
+  // Clear previous RAG results
+  el('rag-result').classList.add('hidden');
+  el('rag-result').textContent = '';
+  el('rag-query').value = '';
 }
 
 // --- Kit Actions ---
@@ -683,7 +704,7 @@ async function addSelectedToKit() {
     showToast('Action Required', 'Select or create a kit first (use Kits tab).', 'error');
     return
   }
-  const checks = Array.from(document.querySelectorAll('#assets-table-body input[type=checkbox]:checked'))
+  const checks = Array.from(document.querySelectorAll('#asset-list input[type=checkbox]:checked'))
   const ids = checks.map(c => c.dataset.assetId)
   if (!ids.length) {
     showToast('Selection Required', 'Select at least one asset', 'error');
@@ -932,19 +953,18 @@ async function createKit() {
     await refreshKits();
 
     // Scroll to the new kit (it will be the last one)
+    // Scroll to the new kit (it will be the last one)
     setTimeout(() => {
-      const kitsContainer = el('kits');
-      const newKitCard = kitsContainer.lastElementChild;
-      if (newKitCard) {
-        newKitCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      const kitsContainer = el('kit-list');
+      const newKitRow = kitsContainer.lastElementChild;
+      if (newKitRow) {
+        newKitRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         // Add a brief highlight effect
-        newKitCard.style.transition = 'all 0.3s ease';
-        newKitCard.style.transform = 'scale(1.02)';
-        newKitCard.style.boxShadow = '0 8px 16px rgba(37, 99, 235, 0.2)';
+        newKitRow.style.transition = 'background-color 0.5s ease';
+        newKitRow.style.backgroundColor = '#f0f9ff';
         setTimeout(() => {
-          newKitCard.style.transform = '';
-          newKitCard.style.boxShadow = '';
-        }, 600);
+          newKitRow.style.backgroundColor = '';
+        }, 1000);
       }
     }, 100);
   } else {
