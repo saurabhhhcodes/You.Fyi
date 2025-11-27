@@ -143,6 +143,12 @@ async function refreshWorkspaces() {
       return;
     }
 
+    // Auto-select first workspace if none selected
+    if (!state.workspaceId && workspaces.length > 0) {
+      state.workspaceId = workspaces[0].id;
+      try { localStorage.setItem('youfyi_workspace', workspaces[0].id) } catch (e) { }
+    }
+
     workspaces.forEach(ws => {
       const item = document.createElement('div');
       item.className = `workspace-item ${state.workspaceId === ws.id ? 'active' : ''}`;
@@ -182,8 +188,22 @@ async function refreshWorkspaces() {
 // --- Kits ---
 
 async function refreshKits() {
-  if (!state.workspaceId) return;
+  // Ensure workspace ID is present
+  if (!state.workspaceId) {
+    const w = localStorage.getItem('youfyi_workspace');
+    if (w) state.workspaceId = w;
+    else {
+      await refreshWorkspaces(); // This will auto-select if possible
+    }
+  }
+
+  if (!state.workspaceId) {
+    return;
+  }
+
   const tbody = el('kit-list');
+  if (!tbody) { return; }
+
   tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 24px;">Loading...</td></tr>';
 
   try {
@@ -978,6 +998,11 @@ function switchView(viewId) {
     }
   });
 
+  // Refresh data for the view
+  if (viewId === 'view-workspaces') refreshWorkspaces();
+  if (viewId === 'view-assets') refreshAssets();
+  if (viewId === 'view-kits') refreshKits();
+
   // Update Title
   const titles = { 'view-workspaces': 'Workspaces', 'view-assets': 'Assets', 'view-kits': 'Kits', 'view-settings': 'Settings' };
   el('page-title').textContent = titles[viewId];
@@ -1045,6 +1070,12 @@ window.addEventListener('load', async () => {
   // Asset Actions
   el('add-to-kit-btn').addEventListener('click', addSelectedToKit);
   el('share-kit-btn').addEventListener('click', createShare);
+
+  // Kit Details Actions
+  const shareKitDetailsBtn = el('share-kit-details-btn');
+  if (shareKitDetailsBtn) {
+    shareKitDetailsBtn.addEventListener('click', createShare);
+  }
 
   // Select All
   el('select-all-assets').addEventListener('change', (e) => {
