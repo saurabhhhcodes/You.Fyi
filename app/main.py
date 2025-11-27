@@ -38,7 +38,7 @@ from fastapi.responses import RedirectResponse, FileResponse
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
-    return FileResponse("app/static/favicon.ico")
+    return FileResponse("app/static/logo-icon.png")
 
 @app.get("/", tags=["root"])
 def read_root():
