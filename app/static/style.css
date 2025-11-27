@@ -724,3 +724,60 @@ select.form-control {
   font-size: 14px;
   color: var(--text-primary);
 }
+
+/* Ghost Button */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  box-shadow: none;
+}
+
+.btn-ghost:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+  backdrop-filter: blur(2px);
+}
+
+/* Sidebar Transitions */
+.sidebar {
+  transition: width 0.3s ease, transform 0.3s ease, left 0.3s ease;
+}
+
+/* Desktop Collapse */
+@media (min-width: 769px) {
+  .sidebar.desktop-collapsed {
+    width: 0;
+    border-right: none;
+    overflow: hidden;
+  }
+}
+
+/* Responsive Sidebar (Mobile) */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -240px;
+    top: 0;
+    bottom: 0;
+    z-index: 50;
+    width: 240px;
+    /* Ensure width is set */
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sidebar.mobile-open {
+    left: 0;
+  }
+}

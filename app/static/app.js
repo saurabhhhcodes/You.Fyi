@@ -1380,13 +1380,47 @@ function toggleCreatePanel(show) {
 
 window.addEventListener('load', async () => {
   // Navigation
-  el('nav-workspaces').addEventListener('click', () => switchView('view-workspaces'));
-  el('nav-assets').addEventListener('click', () => switchView('view-assets'));
-  el('nav-kits').addEventListener('click', () => switchView('view-kits'));
-  el('nav-shared').addEventListener('click', () => switchView('view-shared'));
-  el('nav-settings').addEventListener('click', () => switchView('view-settings'));
-  el('nav-about').addEventListener('click', () => switchView('view-about'));
-  el('nav-home').addEventListener('click', () => switchView('view-workspaces'));
+  const navItems = ['nav-workspaces', 'nav-assets', 'nav-kits', 'nav-shared', 'nav-settings', 'nav-about', 'nav-home'];
+  navItems.forEach(id => {
+    const elNav = el(id);
+    if (elNav) {
+      elNav.addEventListener('click', () => {
+        switchView(id.replace('nav-', 'view-').replace('home', 'workspaces'));
+        // Close sidebar on mobile
+        if (window.innerWidth <= 768) {
+          document.querySelector('.sidebar').classList.remove('mobile-open');
+          el('sidebar-overlay').classList.add('hidden');
+        }
+      });
+    }
+  });
+
+  // Sidebar Toggle
+  const sidebarToggle = el('sidebar-toggle');
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = el('sidebar-overlay');
+
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', () => {
+      if (window.innerWidth <= 768) {
+        sidebar.classList.toggle('mobile-open');
+        if (sidebar.classList.contains('mobile-open')) {
+          overlay.classList.remove('hidden');
+        } else {
+          overlay.classList.add('hidden');
+        }
+      } else {
+        sidebar.classList.toggle('desktop-collapsed');
+      }
+    });
+  }
+
+  if (overlay) {
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('mobile-open');
+      overlay.classList.add('hidden');
+    });
+  }
 
   // Modal Triggers
   el('btn-new-asset').addEventListener('click', () => openModal('modal-create-asset'));

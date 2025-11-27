@@ -41,10 +41,16 @@
       </nav>
     </aside>
 
+    <!-- Sidebar Overlay (Mobile) -->
+    <div id="sidebar-overlay" class="sidebar-overlay hidden"></div>
+
     <!-- Main Content -->
     <main class="main-content">
       <header class="top-bar">
-        <h2 id="page-title">Workspaces</h2>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button id="sidebar-toggle" class="btn btn-ghost" style="font-size: 20px; padding: 4px 8px;">☰</button>
+          <h2 id="page-title" style="margin: 0;">Workspaces</h2>
+        </div>
       </header>
 
       <div class="content-area">
