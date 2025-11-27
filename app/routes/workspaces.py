@@ -48,26 +48,58 @@ def delete_workspace(workspace_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/merge", status_code=status.HTTP_200_OK)
-def merge_workspaces(merge_data: WorkspaceMerge, db: Session = Depends(get_db)):
-    """Merge source workspace into target workspace"""
-    source = db.query(Workspace).filter(Workspace.id == merge_data.source_id).first()
-    target = db.query(Workspace).filter(Workspace.id == merge_data.target_id).first()
-    
+def merge_workspaces(data: WorkspaceMerge, db: Session = Depends(get_db)):
+    """
+    Merge source workspace into target workspace.
+    1. Move all assets from source to target.
+    2. Move all kits from source to target.
+    3. Delete source workspace.
+    """
+    source = db.query(Workspace).filter(Workspace.id == data.source_id).first()
+    target = db.query(Workspace).filter(Workspace.id == data.target_id).first()
+
     if not source or not target:
-        raise HTTPException(status_code=404, detail="Workspace not found")
+        raise HTTPException(status_code=404, detail="Source or target workspace not found")
+
+    # Move Assets
+    for asset in source.assets:
+        asset.workspace_id = target.id
     
     # Move Kits
     for kit in source.kits:
         kit.workspace_id = target.id
-    
-    # Move Assets
-    for asset in source.assets:
-        asset.workspace_id = target.id
-        
+
     db.commit()
-        
+
     # Delete Source
     db.delete(source)
     db.commit()
+
+    return {"message": "Workspaces merged successfully"}
+
+@router.get("/{workspace_id}/shared-links")
+def get_all_shared_links(workspace_id: str, db: Session = Depends(get_db)):
+    """Get all shared links for a workspace (workspace links + kit links)"""
+    workspace = db.query(Workspace).filter(Workspace.id == workspace_id).first()
+    if not workspace:
+        raise HTTPException(status_code=404, detail="Workspace not found")
+
+    # Workspace Links
+    from app.models import WorkspaceSharingLink, SharingLink
+    ws_links = db.query(WorkspaceSharingLink).filter(WorkspaceSharingLink.workspace_id == workspace_id).all()
     
-    return {"message": "Merge successful"}
+    # Kit Links
+    kit_links_data = []
+    for kit in workspace.kits:
+        links = db.query(SharingLink).filter(SharingLink.kit_id == kit.id).all()
+        if links:
+            kit_links_data.append({
+                "kit_id": kit.id,
+                "kit_name": kit.name,
+                "links": links
+            })
+
+    return {
+        "workspace_links": ws_links,
+        "kit_links": kit_links_data
+    }

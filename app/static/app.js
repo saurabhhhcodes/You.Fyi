@@ -728,6 +728,17 @@ function updateKitDropdown(kits) {
     opt.textContent = k.name;
     select.appendChild(opt);
   });
+
+  // Add Separator and Create Option
+  const separator = document.createElement('option');
+  separator.disabled = true;
+  separator.textContent = '──────────';
+  select.appendChild(separator);
+
+  const createOpt = document.createElement('option');
+  createOpt.value = 'CREATE_NEW';
+  createOpt.textContent = '+ Create New Kit';
+  select.appendChild(createOpt);
 }
 
 async function refreshSharedLinks(kitId) {
@@ -1245,10 +1256,84 @@ async function mergeKits() {
   }
 }
 
+async function refreshShared() {
+  if (!state.workspaceId) return;
+  const container = el('shared-links-content');
+  container.innerHTML = 'Loading...';
+
+  try {
+    const res = await fetch(`/workspaces/${state.workspaceId}/shared-links`);
+    if (!res.ok) {
+      container.innerHTML = 'Error loading shared links.';
+      return;
+    }
+    const data = await res.json();
+
+    let html = '';
+
+    // Workspace Links
+    if (data.workspace_links.length > 0) {
+      html += '<h4 style="margin-top: 0;">Workspace Links</h4>';
+      data.workspace_links.forEach(l => {
+        const url = `${window.location.origin}/ui/shared.html?token=${l.token}`;
+        html += `
+          <div class="input-group" style="margin-bottom: 8px;">
+            <input class="form-control" value="${url}" readonly style="font-size: 12px;">
+            <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('${url}').then(() => showToast('Copied', 'Link copied', 'success'))">📋</button>
+            <button class="btn btn-secondary" onclick="deleteWorkspaceShareLink('${l.id}')" style="color: var(--danger);">✕</button>
+          </div>
+        `;
+      });
+    }
+
+    // Kit Links
+    if (data.kit_links.length > 0) {
+      html += '<h4 style="margin-top: 24px;">Kit Links</h4>';
+      data.kit_links.forEach(k => {
+        html += `<h5 style="margin-bottom: 8px; color: var(--text-secondary);">${k.kit_name}</h5>`;
+        k.links.forEach(l => {
+          const url = `${window.location.origin}/ui/shared.html?token=${l.token}`;
+          html += `
+            <div class="input-group" style="margin-bottom: 8px;">
+              <input class="form-control" value="${url}" readonly style="font-size: 12px;">
+              <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('${url}').then(() => showToast('Copied', 'Link copied', 'success'))">📋</button>
+              <button class="btn btn-secondary" onclick="deleteShareLink('${l.id}', '${k.kit_id}', true)" style="color: var(--danger);">✕</button>
+            </div>
+          `;
+        });
+      });
+    }
+
+    if (data.workspace_links.length === 0 && data.kit_links.length === 0) {
+      html = '<div class="empty-state">No active shared links found.</div>';
+    }
+
+    container.innerHTML = html;
+
+  } catch (e) {
+    console.error(e);
+    container.innerHTML = 'Error loading shared links.';
+  }
+}
+
+async function deleteWorkspaceShareLink(id) {
+  if (!confirm('Deactivate this link?')) return;
+  await fetch(`/sharing-links/${id}`, { method: 'DELETE' });
+  refreshShared();
+}
+
+// Update deleteShareLink to handle refresh
+async function deleteShareLink(linkId, kitId, refreshAll = false) {
+  if (!confirm('Deactivate this link?')) return;
+  await fetch(`/sharing-links/${linkId}`, { method: 'DELETE' });
+  if (refreshAll) refreshShared();
+  else refreshSharedLinks(kitId);
+}
+
 // --- UI Logic ---
 
 function switchView(viewId) {
-  ['view-workspaces', 'view-assets', 'view-kits', 'view-settings', 'view-about'].forEach(id => {
+  ['view-workspaces', 'view-assets', 'view-kits', 'view-shared', 'view-settings', 'view-about'].forEach(id => {
     const elView = el(id);
     if (elView) {
       if (id === viewId) elView.classList.remove('hidden');
@@ -1256,7 +1341,7 @@ function switchView(viewId) {
     }
   });
 
-  ['nav-workspaces', 'nav-assets', 'nav-kits', 'nav-settings', 'nav-about'].forEach(id => {
+  ['nav-workspaces', 'nav-assets', 'nav-kits', 'nav-shared', 'nav-settings', 'nav-about'].forEach(id => {
     const elNav = el(id);
     if (elNav) {
       if (id.replace('nav-', 'view-') === viewId) elNav.classList.add('active');
@@ -1268,10 +1353,11 @@ function switchView(viewId) {
   if (viewId === 'view-workspaces') refreshWorkspaces();
   if (viewId === 'view-assets') refreshAssets();
   if (viewId === 'view-kits') refreshKits();
+  if (viewId === 'view-shared') refreshShared();
   if (viewId === 'view-settings') refreshSettings();
 
   // Update Title
-  const titles = { 'view-workspaces': 'Workspaces', 'view-assets': 'Assets', 'view-kits': 'Kits', 'view-settings': 'Settings', 'view-about': 'About' };
+  const titles = { 'view-workspaces': 'Workspaces', 'view-assets': 'Assets', 'view-kits': 'Kits', 'view-shared': 'Shared Links', 'view-settings': 'Settings', 'view-about': 'About' };
   el('page-title').textContent = titles[viewId];
 }
 
@@ -1297,6 +1383,7 @@ window.addEventListener('load', async () => {
   el('nav-workspaces').addEventListener('click', () => switchView('view-workspaces'));
   el('nav-assets').addEventListener('click', () => switchView('view-assets'));
   el('nav-kits').addEventListener('click', () => switchView('view-kits'));
+  el('nav-shared').addEventListener('click', () => switchView('view-shared'));
   el('nav-settings').addEventListener('click', () => switchView('view-settings'));
   el('nav-about').addEventListener('click', () => switchView('view-about'));
   el('nav-home').addEventListener('click', () => switchView('view-workspaces'));
@@ -1313,6 +1400,24 @@ window.addEventListener('load', async () => {
   el('modal-create-ws-btn').addEventListener('click', createWorkspaceFromModal);
   el('modal-create-asset-btn').addEventListener('click', createAssetFromModal);
   el('modal-create-kit-btn').addEventListener('click', createKitFromModal);
+
+  // Delete Workspace
+  const delWsBtn = el('del-ws');
+  if (delWsBtn) {
+    delWsBtn.addEventListener('click', deleteWorkspace);
+  }
+
+  // Target Kit Select Change
+  const targetKitSelect = el('target-kit-select');
+  if (targetKitSelect) {
+    targetKitSelect.addEventListener('change', (e) => {
+      if (e.target.value === 'CREATE_NEW') {
+        openModal('modal-create-kit');
+        // Reset selection so it doesn't stay on "Create New Kit"
+        e.target.value = '';
+      }
+    });
+  }
 
   // Copy share link button
   el('copy-share-link').addEventListener('click', async () => {

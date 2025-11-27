@@ -29,6 +29,9 @@
         <button id="nav-kits" class="nav-item">
           <span class="nav-icon">📦</span> Kits
         </button>
+        <button id="nav-shared" class="nav-item">
+          <span class="nav-icon">🔗</span> Shared
+        </button>
         <button id="nav-settings" class="nav-item">
           <span class="nav-icon">⚙️</span> Settings
         </button>
@@ -149,109 +152,116 @@
               <div style="margin-bottom: 24px;">
                 <h4
                   style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
-                  <!-- Properties -->
-                  <div style="margin-bottom: 24px;">
-                    <h4
-                      style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
-                      Properties</h4>
-                    <div class="form-group">
-                      <label style="font-size: 12px;">Name</label>
-                      <input id="detail-kit-name-input" class="form-control">
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size: 12px;">Description</label>
-                      <textarea id="detail-kit-desc-input" class="form-control"
-                        style="height: 60px; font-family: inherit;"></textarea>
-                    </div>
-                    <div style="text-align: right;">
-                      <button id="save-kit-details-btn" class="btn btn-primary btn-sm">Save</button>
-                    </div>
-                  </div>
-
-                  <!-- Content -->
-                  <div style="margin-bottom: 24px;">
-                    <h4
-                      style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
-                      Content</h4>
-                    <div class="form-group">
-                      <label style="font-size: 12px;">Assets</label>
-                      <input id="detail-kit-assets-count" class="form-control" readonly>
-                    </div>
-                  </div>
-
-                  <!-- Sharing -->
-                  <div style="margin-bottom: 24px;">
-                    <h4
-                      style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
-                      Sharing</h4>
-                    <div class="form-group">
-                      <button id="share-kit-details-btn" class="btn btn-secondary" style="width: 100%;">Create Share
-                        Link</button>
-                    </div>
-                    <div id="kit-shared-links-container" class="hidden" style="margin-top: 12px;">
-                      <h5 style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">Active Links</h5>
-                      <div id="kit-shared-links-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
-                    </div>
-                  </div>
-
-                  <!-- Merge Kit -->
-                  <div style="margin-bottom: 24px;">
-                    <h4
-                      style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
-                      Merge</h4>
-                    <div class="form-group">
-                      <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">
-                        Merge this kit into another. Assets will be moved. This kit will be deleted.
-                      </p>
-                      <div style="display: flex; gap: 8px;">
-                        <select id="merge-target-kit-select" class="form-control" style="font-size: 12px;">
-                          <option value="">Select Target Kit...</option>
-                        </select>
-                        <button id="merge-kit-btn" class="btn btn-secondary btn-sm">Merge</button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- RAG / Ask -->
-                  <div style="margin-top: auto;">
-                    <h4
-                      style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
-                      Ask AI</h4>
-                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                      <input id="rag-query" class="form-control" placeholder="Ask about this kit..." style="flex: 1;">
-                      <button id="run-rag" class="btn btn-primary" style="padding: 0 12px;">Ask</button>
-                    </div>
-                    <div
-                      style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                      <label class="small" style="margin: 0;"><input type="checkbox" id="use-llm" checked /> Use
-                        LLM</label>
-                      <button id="toggle-quick-actions" class="btn btn-sm btn-secondary" style="font-size: 11px;">Quick
-                        Actions <span id="qa-arrow">▼</span></button>
-                    </div>
-
-                    <!-- Quick Actions Menu -->
-                    <div id="quick-actions-menu" class="card"
-                      style="display: none; position: absolute; bottom: 140px; right: 20px; width: 200px; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                      <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <button id="quick-query-summary" class="btn btn-sm btn-ghost" style="text-align: left;">📝
-                          Summarize</button>
-                        <button id="quick-query-count" class="btn btn-sm btn-ghost" style="text-align: left;">🔢 Count
-                          Assets</button>
-                        <button id="quick-query-types" class="btn btn-sm btn-ghost" style="text-align: left;">📂 File
-                          Types</button>
-                        <button id="quick-query-recent" class="btn btn-sm btn-ghost" style="text-align: left;">🕒 Recent
-                          Files</button>
-                      </div>
-                    </div>
-
-                    <pre id="rag-result" class="small mt-4 hidden"
-                      style="background: #f1f5f9; padding: 8px; border-radius: 4px; max-height: 200px; overflow-y: auto; white-space: pre-wrap;"></pre>
-                  </div>
+                  Properties</h4>
+                <div class="form-group">
+                  <label style="font-size: 12px;">Name</label>
+                  <input id="detail-kit-name-input" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label style="font-size: 12px;">Description</label>
+                  <textarea id="detail-kit-desc-input" class="form-control"
+                    style="height: 60px; font-family: inherit;"></textarea>
+                </div>
+                <div style="text-align: right;">
+                  <button id="save-kit-details-btn" class="btn btn-primary btn-sm">Save</button>
+                </div>
               </div>
 
-              <div id="kit-details-empty" style="padding: 32px; text-align: center; color: var(--text-secondary);">
-                Select a kit from the list to view details and ask questions.
+              <!-- Content -->
+              <div style="margin-bottom: 24px;">
+                <h4
+                  style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
+                  Content</h4>
+                <div class="form-group">
+                  <label style="font-size: 12px;">Assets</label>
+                  <input id="detail-kit-assets-count" class="form-control" readonly>
+                </div>
               </div>
+
+              <!-- Sharing -->
+              <div style="margin-bottom: 24px;">
+                <h4
+                  style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
+                  Sharing</h4>
+                <div class="form-group">
+                  <button id="share-kit-details-btn" class="btn btn-secondary" style="width: 100%;">Create Share
+                    Link</button>
+                </div>
+                <div id="kit-shared-links-container" class="hidden" style="margin-top: 12px;">
+                  <h5 style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">Active Links</h5>
+                  <div id="kit-shared-links-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                </div>
+              </div>
+
+              <!-- Merge Kit -->
+              <div style="margin-bottom: 24px;">
+                <h4
+                  style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
+                  Merge</h4>
+                <div class="form-group">
+                  <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">
+                    Merge this kit into another. Assets will be moved. This kit will be deleted.
+                  </p>
+                  <div style="display: flex; gap: 8px;">
+                    <select id="merge-target-kit-select" class="form-control" style="font-size: 12px;">
+                      <option value="">Select Target Kit...</option>
+                    </select>
+                    <button id="merge-kit-btn" class="btn btn-secondary btn-sm">Merge</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- RAG / Ask -->
+              <div style="margin-top: auto;">
+                <h4
+                  style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
+                  Ask AI</h4>
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                  <input id="rag-query" class="form-control" placeholder="Ask about this kit..." style="flex: 1;">
+                  <button id="run-rag" class="btn btn-primary" style="padding: 0 12px;">Ask</button>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <label class="small" style="margin: 0;"><input type="checkbox" id="use-llm" checked /> Use
+                    LLM</label>
+                  <button id="toggle-quick-actions" class="btn btn-sm btn-secondary" style="font-size: 11px;">Quick
+                    Actions <span id="qa-arrow">▼</span></button>
+                </div>
+
+                <!-- Quick Actions Menu -->
+                <div id="quick-actions-menu" class="card"
+                  style="display: none; position: absolute; bottom: 140px; right: 20px; width: 200px; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                  <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <button id="quick-query-summary" class="btn btn-sm btn-ghost" style="text-align: left;">📝
+                      Summarize</button>
+                    <button id="quick-query-count" class="btn btn-sm btn-ghost" style="text-align: left;">🔢 Count
+                      Assets</button>
+                    <button id="quick-query-types" class="btn btn-sm btn-ghost" style="text-align: left;">📂 File
+                      Types</button>
+                    <button id="quick-query-recent" class="btn btn-sm btn-ghost" style="text-align: left;">🕒 Recent
+                      Files</button>
+                  </div>
+                </div>
+
+                <pre id="rag-result" class="small mt-4 hidden"
+                  style="background: #f1f5f9; padding: 8px; border-radius: 4px; max-height: 200px; overflow-y: auto; white-space: pre-wrap;"></pre>
+              </div>
+            </div>
+
+            <div id="kit-details-empty" style="padding: 32px; text-align: center; color: var(--text-secondary);">
+              Select a kit from the list to view details and ask questions.
+            </div>
+          </div>
+        </div>
+
+        <!-- Shared Links View -->
+        <div id="view-shared" class="hidden">
+          <div class="card" style="max-width: 800px; margin: 0 auto;">
+            <h3>Shared Links</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">Manage all active sharing links for this
+              workspace.</p>
+
+            <div id="shared-links-content">
+              <!-- Populated by JS -->
             </div>
           </div>
         </div>
