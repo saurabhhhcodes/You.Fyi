@@ -979,6 +979,28 @@ async function runRag() {
   }
 }
 
+// --- Settings ---
+
+async function refreshSettings() {
+  if (!state.workspaceId) return;
+
+  try {
+    const res = await fetch(`/workspaces/${state.workspaceId}`);
+    if (!res.ok) return;
+    const ws = await res.json();
+
+    // Update Slug
+    el('settings-ws-slug').value = ws.name; // Assuming name is slug for now, or description is display name
+
+    // Update Share Link
+    const link = `https://you.fyi/${ws.name}`;
+    el('share-workspace-link').value = link;
+
+  } catch (e) {
+    console.error('Failed to refresh settings:', e);
+  }
+}
+
 // --- UI Logic ---
 
 function switchView(viewId) {
@@ -1002,11 +1024,16 @@ function switchView(viewId) {
   if (viewId === 'view-workspaces') refreshWorkspaces();
   if (viewId === 'view-assets') refreshAssets();
   if (viewId === 'view-kits') refreshKits();
+  if (viewId === 'view-settings') refreshSettings();
 
   // Update Title
   const titles = { 'view-workspaces': 'Workspaces', 'view-assets': 'Assets', 'view-kits': 'Kits', 'view-settings': 'Settings' };
   el('page-title').textContent = titles[viewId];
 }
+
+// ... (rest of file)
+
+// --- Initialization ---
 
 function toggleCreatePanel(show) {
   const panel = el('create-asset-panel');
@@ -1020,8 +1047,6 @@ function toggleCreatePanel(show) {
     el('btn-new-asset').innerHTML = '<span>+</span> New Asset';
   }
 }
-
-// --- Initialization ---
 
 window.addEventListener('load', async () => {
   // Navigation
@@ -1050,6 +1075,20 @@ window.addEventListener('load', async () => {
       console.error('Failed to copy:', e);
     }
   });
+
+  // Copy workspace link
+  const copyWsLinkBtn = el('copy-workspace-link');
+  if (copyWsLinkBtn) {
+    copyWsLinkBtn.addEventListener('click', async () => {
+      const link = el('share-workspace-link').value;
+      try {
+        await navigator.clipboard.writeText(link);
+        showToast('Copied', 'Workspace link copied to clipboard!', 'success');
+      } catch (e) {
+        console.error('Failed to copy:', e);
+      }
+    });
+  }
 
   // Asset type selector in modal
   el('modal-asset-type').addEventListener('change', (e) => {
