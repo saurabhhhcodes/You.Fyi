@@ -1024,7 +1024,7 @@ async function refreshSettings() {
 // --- UI Logic ---
 
 function switchView(viewId) {
-  ['view-workspaces', 'view-assets', 'view-kits', 'view-settings'].forEach(id => {
+  ['view-workspaces', 'view-assets', 'view-kits', 'view-settings', 'view-about'].forEach(id => {
     const elView = el(id);
     if (elView) {
       if (id === viewId) elView.classList.remove('hidden');
@@ -1032,7 +1032,7 @@ function switchView(viewId) {
     }
   });
 
-  ['nav-workspaces', 'nav-assets', 'nav-kits', 'nav-settings'].forEach(id => {
+  ['nav-workspaces', 'nav-assets', 'nav-kits', 'nav-settings', 'nav-about'].forEach(id => {
     const elNav = el(id);
     if (elNav) {
       if (id.replace('nav-', 'view-') === viewId) elNav.classList.add('active');
@@ -1047,7 +1047,7 @@ function switchView(viewId) {
   if (viewId === 'view-settings') refreshSettings();
 
   // Update Title
-  const titles = { 'view-workspaces': 'Workspaces', 'view-assets': 'Assets', 'view-kits': 'Kits', 'view-settings': 'Settings' };
+  const titles = { 'view-workspaces': 'Workspaces', 'view-assets': 'Assets', 'view-kits': 'Kits', 'view-settings': 'Settings', 'view-about': 'About' };
   el('page-title').textContent = titles[viewId];
 }
 
@@ -1074,6 +1074,7 @@ window.addEventListener('load', async () => {
   el('nav-assets').addEventListener('click', () => switchView('view-assets'));
   el('nav-kits').addEventListener('click', () => switchView('view-kits'));
   el('nav-settings').addEventListener('click', () => switchView('view-settings'));
+  el('nav-about').addEventListener('click', () => switchView('view-about'));
 
   // Modal Triggers
   el('btn-new-asset').addEventListener('click', () => openModal('modal-create-asset'));
