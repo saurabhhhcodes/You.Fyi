@@ -34,7 +34,11 @@ app.include_router(rag.router)
 app.mount("/ui", StaticFiles(directory="app/static", html=True), name="ui")
 
 
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, FileResponse
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse("app/static/favicon.ico")
 
 @app.get("/", tags=["root"])
 def read_root():
