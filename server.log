@@ -1,0 +1,106 @@
+INFO:     Will watch for changes in these directories: ['/home/saurabh/You.Fyi']
+INFO:     Uvicorn running on http://0.0.0.0:8002 (Press CTRL+C to quit)
+INFO:     Started reloader process [1978874] using WatchFiles
+INFO:     Started server process [1978888]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:50488 - "GET /shared.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:50488 - "GET /sharing-links/token/sHSCeVh5X2q_LOC7MN0_UVAdNG1jMUimeuLQZp2s1JI HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56896 - "POST /rag/query/shared/sHSCeVh5X2q_LOC7MN0_UVAdNG1jMUimeuLQZp2s1JI HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56896 - "POST /rag/query/shared/sHSCeVh5X2q_LOC7MN0_UVAdNG1jMUimeuLQZp2s1JI HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56896 - "POST /rag/query/shared/sHSCeVh5X2q_LOC7MN0_UVAdNG1jMUimeuLQZp2s1JI HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56896 - "POST /rag/query/shared/sHSCeVh5X2q_LOC7MN0_UVAdNG1jMUimeuLQZp2s1JI HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34060 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34060 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:34060 - "GET /style.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34066 - "GET /logo-icon.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34060 - "GET /app.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34066 - "GET /workspaces/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34066 - "GET /logo-icon.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34060 - "GET /assets/2d75b85c-08be-4aeb-b26c-890dbc6c6096 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34060 - "GET /kits/2d75b85c-08be-4aeb-b26c-890dbc6c6096 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53360 - "GET /workspaces/2d75b85c-08be-4aeb-b26c-890dbc6c6096 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53360 - "GET /sharing-links/workspace/2d75b85c-08be-4aeb-b26c-890dbc6c6096 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53360 - "GET /workspaces/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53654 - "GET /shared.html?token=sHSCeVh5X2q_LOC7MN0_UVAdNG1jMUimeuLQZp2s1JI HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53654 - "GET /sharing-links/token/sHSCeVh5X2q_LOC7MN0_UVAdNG1jMUimeuLQZp2s1JI HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53654 - "POST /rag/query/shared/sHSCeVh5X2q_LOC7MN0_UVAdNG1jMUimeuLQZp2s1JI HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53654 - "POST /rag/query/shared/sHSCeVh5X2q_LOC7MN0_UVAdNG1jMUimeuLQZp2s1JI HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53654 - "POST /rag/query/shared/sHSCeVh5X2q_LOC7MN0_UVAdNG1jMUimeuLQZp2s1JI HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53654 - "POST /rag/query/shared/sHSCeVh5X2q_LOC7MN0_UVAdNG1jMUimeuLQZp2s1JI HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53664 - "GET /kits/2d75b85c-08be-4aeb-b26c-890dbc6c6096 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53664 - "GET /assets/2d75b85c-08be-4aeb-b26c-890dbc6c6096 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53664 - "GET /workspaces/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53664 - "GET /workspaces/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53664 - "GET /workspaces/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53664 - "GET /workspaces/2d75b85c-08be-4aeb-b26c-890dbc6c6096 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53664 - "GET /sharing-links/workspace/2d75b85c-08be-4aeb-b26c-890dbc6c6096 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53664 - "GET /workspaces/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53664 - "GET /workspaces/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40754 - "GET /workspaces/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40754 - "GET /assets/1967b7d5-016a-46d9-bf4e-f0a4bc1fe2a5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40754 - "GET /kits/1967b7d5-016a-46d9-bf4e-f0a4bc1fe2a5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40754 - "GET /workspaces/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40754 - "GET /assets/6f417455-c26a-4903-be47-af62763c44df HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40754 - "GET /kits/6f417455-c26a-4903-be47-af62763c44df HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40754 - "GET /workspaces/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40754 - "GET /assets/1967b7d5-016a-46d9-bf4e-f0a4bc1fe2a5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40754 - "GET /kits/1967b7d5-016a-46d9-bf4e-f0a4bc1fe2a5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40754 - "GET /workspaces/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40754 - "GET /assets/be706327-2cac-4cdd-8fbe-519dd25356b3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40754 - "GET /kits/be706327-2cac-4cdd-8fbe-519dd25356b3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40754 - "GET /workspaces/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40754 - "GET /assets/1967b7d5-016a-46d9-bf4e-f0a4bc1fe2a5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40754 - "GET /kits/1967b7d5-016a-46d9-bf4e-f0a4bc1fe2a5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40754 - "GET /assets/1967b7d5-016a-46d9-bf4e-f0a4bc1fe2a5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33274 - "GET /kits/1967b7d5-016a-46d9-bf4e-f0a4bc1fe2a5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33274 - "GET /sharing-links/kit/ce9ccd46-3e89-472e-ad20-bbe99e29d318 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33274 - "GET /workspaces/1967b7d5-016a-46d9-bf4e-f0a4bc1fe2a5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33274 - "GET /sharing-links/workspace/1967b7d5-016a-46d9-bf4e-f0a4bc1fe2a5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33274 - "GET /workspaces/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54814 - "GET /workspaces/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54818 - "GET /workspaces/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54834 - "POST /workspaces/ HTTP/1.1" 201 Created
+INFO:     127.0.0.1:54836 - "POST /workspaces/ HTTP/1.1" 400 Bad Request
+WARNING:  WatchFiles detected changes in 'test_comprehensive.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1978888]
+INFO:     Started server process [1989359]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'test_new_features.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1989359]
+INFO:     Started server process [1989636]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:44770 - "POST /workspaces/ HTTP/1.1" 201 Created
+INFO:     127.0.0.1:44786 - "POST /assets/c9dec2a5-6087-44d3-b7d9-4c378ab5c0d3 HTTP/1.1" 201 Created
+INFO:     127.0.0.1:44788 - "POST /assets/c9dec2a5-6087-44d3-b7d9-4c378ab5c0d3/upload HTTP/1.1" 201 Created
+INFO:     127.0.0.1:44804 - "POST /assets/c9dec2a5-6087-44d3-b7d9-4c378ab5c0d3/upload HTTP/1.1" 201 Created
+INFO:     127.0.0.1:44818 - "GET /assets/c9dec2a5-6087-44d3-b7d9-4c378ab5c0d3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44820 - "POST /kits/c9dec2a5-6087-44d3-b7d9-4c378ab5c0d3 HTTP/1.1" 201 Created
+INFO:     127.0.0.1:44834 - "POST /sharing-links/kit/80783dcb-dc7b-46eb-8a9e-f25221e70bd1 HTTP/1.1" 201 Created
+INFO:     127.0.0.1:44838 - "GET /workspaces/c9dec2a5-6087-44d3-b7d9-4c378ab5c0d3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44840 - "GET /assets/c9dec2a5-6087-44d3-b7d9-4c378ab5c0d3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44854 - "PUT /kits/kit/80783dcb-dc7b-46eb-8a9e-f25221e70bd1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44860 - "GET /kits/kit/80783dcb-dc7b-46eb-8a9e-f25221e70bd1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44866 - "POST /rag/query HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44878 - "GET /workspaces/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44890 - "POST /workspaces/ HTTP/1.1" 201 Created
+INFO:     127.0.0.1:44892 - "POST /workspaces/ HTTP/1.1" 201 Created
+INFO:     127.0.0.1:44906 - "POST /assets/1dac9a13-b7a8-45c9-994f-b4e5c4660a32 HTTP/1.1" 201 Created
+INFO:     127.0.0.1:44916 - "POST /kits/1dac9a13-b7a8-45c9-994f-b4e5c4660a32 HTTP/1.1" 201 Created
+INFO:     127.0.0.1:44918 - "POST /kits/86c820f1-76ff-42ff-84b6-b3ac2b2ddec2 HTTP/1.1" 201 Created
+INFO:     127.0.0.1:44926 - "PUT /kits/kit/525e9c26-ce81-4bcb-a8ed-da9b832c4580 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44936 - "POST /sharing-links/workspace/1dac9a13-b7a8-45c9-994f-b4e5c4660a32 HTTP/1.1" 201 Created
+INFO:     127.0.0.1:44944 - "POST /workspaces/merge HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44952 - "GET /workspaces/1dac9a13-b7a8-45c9-994f-b4e5c4660a32 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:44956 - "GET /kits/kit/525e9c26-ce81-4bcb-a8ed-da9b832c4580 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44960 - "POST /kits/merge HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44968 - "GET /kits/kit/525e9c26-ce81-4bcb-a8ed-da9b832c4580 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:44984 - "GET /kits/kit/ee7007a8-e245-4bb7-8527-ef9ab10200e8 HTTP/1.1" 200 OK

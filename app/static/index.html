@@ -121,7 +121,13 @@
           <div style="flex: 1; display: flex; flex-direction: column;">
             <div class="toolbar">
               <div class="search-bar">
-                <span class="search-icon">🔍</span>
+                <span class="search-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                </span>
                 <input type="text" id="search-kits" placeholder="Search kits...">
               </div>
               <div class="actions">
@@ -180,7 +186,10 @@
                   Content</h4>
                 <div class="form-group">
                   <label style="font-size: 12px;">Assets</label>
-                  <input id="detail-kit-assets-count" class="form-control" readonly>
+                  <div id="detail-kit-assets-list"
+                    style="background: var(--bg-body); border: 1px solid var(--border); border-radius: 6px; padding: 8px; max-height: 150px; overflow-y: auto;">
+                    <!-- Populated by JS -->
+                  </div>
                 </div>
               </div>
 
@@ -508,6 +517,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('modal-share-link')">Close</button>
+        <button id="open-share-link" class="btn btn-secondary">Open</button>
         <button id="copy-share-link" class="btn btn-primary">Copy Link</button>
       </div>
     </div>

@@ -435,7 +435,6 @@ function setWorkspaceById() {
   const id = el('ws-id').value.trim()
   if (!id) return showToast('Input Required', 'Enter a workspace id', 'error')
   state.workspaceId = id
-  el('ws-result').textContent = id
   try { localStorage.setItem('youfyi_workspace', id) } catch (e) { }
   refreshAssets(); refreshKits();
 }
@@ -447,7 +446,6 @@ async function deleteWorkspace() {
   if (res.ok) {
     state.workspaceId = null
     state.lastKitId = null
-    el('ws-result').textContent = 'None'
     try { localStorage.removeItem('youfyi_workspace') } catch (e) { }
     refreshAssets(); refreshKits()
   } else {
@@ -689,7 +687,24 @@ function selectKit(k) {
   el('detail-kit-name').textContent = k.name;
   el('detail-kit-name-input').value = k.name;
   el('detail-kit-desc-input').value = k.description || '';
-  el('detail-kit-assets-count').value = `${k.assets?.length || 0} assets`;
+
+  // Populate Asset List
+  const assetList = el('detail-kit-assets-list');
+  if (assetList) {
+    assetList.innerHTML = '';
+    if (k.assets && k.assets.length > 0) {
+      k.assets.forEach(a => {
+        const div = document.createElement('div');
+        div.style.fontSize = '12px';
+        div.style.padding = '4px 0';
+        div.style.borderBottom = '1px solid var(--border)';
+        div.textContent = `• ${a.name}`;
+        assetList.appendChild(div);
+      });
+    } else {
+      assetList.innerHTML = '<div style="font-size: 12px; color: var(--text-secondary); padding: 4px;">No assets</div>';
+    }
+  }
 
   // Show content, hide empty state
   el('kit-details-content').classList.remove('hidden');
@@ -1022,7 +1037,7 @@ async function createShare() {
     return
   }
 
-  const btn = el('share-kit-btn');
+  const btn = el('share-kit-details-btn');
   setLoading(btn, true, 'Creating...');
 
   const res = await fetch(`/sharing-links/kit/${state.lastKitId}`, {
@@ -1044,6 +1059,13 @@ async function createShare() {
 
   // Show link in permanent modal
   el('share-link-input').value = link;
+
+  // Setup Open Button
+  const openBtn = el('open-share-link');
+  if (openBtn) {
+    openBtn.onclick = () => window.open(link, '_blank');
+  }
+
   openModal('modal-share-link');
 
   // Copy to clipboard
@@ -1279,6 +1301,7 @@ async function refreshShared() {
         html += `
           <div class="input-group" style="margin-bottom: 8px;">
             <input class="form-control" value="${url}" readonly style="font-size: 12px;">
+            <button class="btn btn-secondary" onclick="window.open('${url}', '_blank')">🔗</button>
             <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('${url}').then(() => showToast('Copied', 'Link copied', 'success'))">📋</button>
             <button class="btn btn-secondary" onclick="deleteWorkspaceShareLink('${l.id}')" style="color: var(--danger);">✕</button>
           </div>
@@ -1296,6 +1319,7 @@ async function refreshShared() {
           html += `
             <div class="input-group" style="margin-bottom: 8px;">
               <input class="form-control" value="${url}" readonly style="font-size: 12px;">
+              <button class="btn btn-secondary" onclick="window.open('${url}', '_blank')">🔗</button>
               <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('${url}').then(() => showToast('Copied', 'Link copied', 'success'))">📋</button>
               <button class="btn btn-secondary" onclick="deleteShareLink('${l.id}', '${k.kit_id}', true)" style="color: var(--danger);">✕</button>
             </div>
@@ -1429,8 +1453,9 @@ window.addEventListener('load', async () => {
   el('merge-kit-btn').addEventListener('click', mergeKits);
   el('create-kit').addEventListener('click', () => openModal('modal-create-kit'));
   el('create-ws').addEventListener('click', () => openModal('modal-create-workspace'));
+  el('share-kit-details-btn').addEventListener('click', createShare);
 
-  // Modal Actions
+  // Form Submissions
   el('modal-create-ws-btn').addEventListener('click', createWorkspaceFromModal);
   el('modal-create-asset-btn').addEventListener('click', createAssetFromModal);
   el('modal-create-kit-btn').addEventListener('click', createKitFromModal);
