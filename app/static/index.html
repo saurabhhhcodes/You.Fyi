@@ -69,9 +69,11 @@
               <span class="search-icon">🔍</span>
               <input type="text" id="search-assets" placeholder="Search assets...">
             </div>
-            <div class="actions">
+            <div class="actions" style="display: flex; gap: 8px;">
+              <select id="target-kit-select" class="form-control" style="width: 150px; height: 36px;">
+                <option value="">Select Kit...</option>
+              </select>
               <button id="add-to-kit-btn" class="btn btn-secondary">Add to Kit</button>
-              <button id="share-kit-btn" class="btn btn-secondary">Share</button>
               <button id="btn-new-asset" class="btn btn-primary"><span>+</span> New Asset</button>
             </div>
           </div>
@@ -147,169 +149,192 @@
               <div style="margin-bottom: 24px;">
                 <h4
                   style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
-                  Properties</h4>
-                <div class="form-group">
-                  <label style="font-size: 12px;">Internal Name</label>
-                  <input id="detail-kit-name-input" class="form-control" readonly>
-                </div>
-              </div>
-
-              <!-- Content -->
-              <div style="margin-bottom: 24px;">
-                <h4
-                  style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
-                  Content</h4>
-                <div class="form-group">
-                  <label style="font-size: 12px;">Assets</label>
-                  <input id="detail-kit-assets-count" class="form-control" readonly>
-                </div>
-              </div>
-
-              <!-- Sharing -->
-              <div style="margin-bottom: 24px;">
-                <h4
-                  style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
-                  Sharing</h4>
-                <div class="form-group">
-                  <button id="share-kit-details-btn" class="btn btn-secondary" style="width: 100%;">Share Kit</button>
-                </div>
-              </div>
-
-              <!-- RAG / Ask -->
-              <div style="margin-top: auto;">
-                <h4
-                  style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
-                  Ask AI</h4>
-                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                  <input id="rag-query" class="form-control" placeholder="Ask about this kit..." style="flex: 1;">
-                  <button id="run-rag" class="btn btn-primary" style="padding: 0 12px;">Ask</button>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                  <label class="small" style="margin: 0;"><input type="checkbox" id="use-llm" checked /> Use LLM</label>
-                  <button id="toggle-quick-actions" class="btn btn-sm btn-secondary" style="font-size: 11px;">Quick
-                    Actions <span id="qa-arrow">▼</span></button>
-                </div>
-
-                <!-- Quick Actions Menu -->
-                <div id="quick-actions-menu" class="card"
-                  style="display: none; position: absolute; bottom: 140px; right: 20px; width: 200px; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                  <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <button id="quick-query-summary" class="btn btn-sm btn-ghost" style="text-align: left;">📝
-                      Summarize</button>
-                    <button id="quick-query-count" class="btn btn-sm btn-ghost" style="text-align: left;">🔢 Count
-                      Assets</button>
-                    <button id="quick-query-types" class="btn btn-sm btn-ghost" style="text-align: left;">📂 File
-                      Types</button>
-                    <button id="quick-query-recent" class="btn btn-sm btn-ghost" style="text-align: left;">🕒 Recent
-                      Files</button>
+                  <!-- Properties -->
+                  <div style="margin-bottom: 24px;">
+                    <h4
+                      style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
+                      Properties</h4>
+                    <div class="form-group">
+                      <label style="font-size: 12px;">Name</label>
+                      <input id="detail-kit-name-input" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size: 12px;">Description</label>
+                      <textarea id="detail-kit-desc-input" class="form-control"
+                        style="height: 60px; font-family: inherit;"></textarea>
+                    </div>
+                    <div style="text-align: right;">
+                      <button id="save-kit-details-btn" class="btn btn-primary btn-sm">Save</button>
+                    </div>
                   </div>
+
+                  <!-- Content -->
+                  <div style="margin-bottom: 24px;">
+                    <h4
+                      style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
+                      Content</h4>
+                    <div class="form-group">
+                      <label style="font-size: 12px;">Assets</label>
+                      <input id="detail-kit-assets-count" class="form-control" readonly>
+                    </div>
+                  </div>
+
+                  <!-- Sharing -->
+                  <div style="margin-bottom: 24px;">
+                    <h4
+                      style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
+                      Sharing</h4>
+                    <div class="form-group">
+                      <button id="share-kit-details-btn" class="btn btn-secondary" style="width: 100%;">Create Share
+                        Link</button>
+                    </div>
+                    <div id="kit-shared-links-container" class="hidden" style="margin-top: 12px;">
+                      <h5 style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">Active Links</h5>
+                      <div id="kit-shared-links-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                    </div>
+                  </div>
+
+                  <!-- RAG / Ask -->
+                  <div style="margin-top: auto;">
+                    <h4
+                      style="font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
+                      Ask AI</h4>
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                      <input id="rag-query" class="form-control" placeholder="Ask about this kit..." style="flex: 1;">
+                      <button id="run-rag" class="btn btn-primary" style="padding: 0 12px;">Ask</button>
+                    </div>
+                    <div
+                      style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                      <label class="small" style="margin: 0;"><input type="checkbox" id="use-llm" checked /> Use
+                        LLM</label>
+                      <button id="toggle-quick-actions" class="btn btn-sm btn-secondary" style="font-size: 11px;">Quick
+                        Actions <span id="qa-arrow">▼</span></button>
+                    </div>
+
+                    <!-- Quick Actions Menu -->
+                    <div id="quick-actions-menu" class="card"
+                      style="display: none; position: absolute; bottom: 140px; right: 20px; width: 200px; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                      <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <button id="quick-query-summary" class="btn btn-sm btn-ghost" style="text-align: left;">📝
+                          Summarize</button>
+                        <button id="quick-query-count" class="btn btn-sm btn-ghost" style="text-align: left;">🔢 Count
+                          Assets</button>
+                        <button id="quick-query-types" class="btn btn-sm btn-ghost" style="text-align: left;">📂 File
+                          Types</button>
+                        <button id="quick-query-recent" class="btn btn-sm btn-ghost" style="text-align: left;">🕒 Recent
+                          Files</button>
+                      </div>
+                    </div>
+
+                    <pre id="rag-result" class="small mt-4 hidden"
+                      style="background: #f1f5f9; padding: 8px; border-radius: 4px; max-height: 200px; overflow-y: auto; white-space: pre-wrap;"></pre>
+                  </div>
+              </div>
+
+              <div id="kit-details-empty" style="padding: 32px; text-align: center; color: var(--text-secondary);">
+                Select a kit from the list to view details and ask questions.
+              </div>
+            </div>
+          </div>
+
+          <!-- Settings View -->
+          <div id="view-settings" class="hidden">
+            <div class="card" style="max-width: 800px; margin: 0 auto;">
+              <h3>Workspace Settings</h3>
+
+              <!-- Slug Settings -->
+              <div
+                style="margin-top: 24px; padding: 24px; border: 1px solid #fef3c7; background: #fffbeb; border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                  <h4 style="margin: 0; color: #92400e;">Custom Workspace Slug</h4>
+                  <span class="badge" style="background: #f59e0b; color: white;">Upgrade</span>
                 </div>
 
-                <pre id="rag-result" class="small mt-4 hidden"
-                  style="background: #f1f5f9; padding: 8px; border-radius: 4px; max-height: 200px; overflow-y: auto; white-space: pre-wrap;"></pre>
-              </div>
-            </div>
+                <p style="font-size: 13px; color: #92400e; margin-bottom: 16px;">
+                  Changing your workspace slug may prevent people from accessing kits you've previously shared with
+                  them.
+                </p>
 
-            <div id="kit-details-empty" style="padding: 32px; text-align: center; color: var(--text-secondary);">
-              Select a kit from the list to view details and ask questions.
-            </div>
-          </div>
-        </div>
-
-        <!-- Settings View -->
-        <div id="view-settings" class="hidden">
-          <div class="card" style="max-width: 800px; margin: 0 auto;">
-            <h3>Workspace Settings</h3>
-
-            <!-- Slug Settings -->
-            <div
-              style="margin-top: 24px; padding: 24px; border: 1px solid #fef3c7; background: #fffbeb; border-radius: 8px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h4 style="margin: 0; color: #92400e;">Custom Workspace Slug</h4>
-                <span class="badge" style="background: #f59e0b; color: white;">Upgrade</span>
-              </div>
-
-              <p style="font-size: 13px; color: #92400e; margin-bottom: 16px;">
-                Changing your workspace slug may prevent people from accessing kits you've previously shared with them.
-              </p>
-
-              <div class="form-group">
-                <label for="settings-ws-slug">Workspace slug <span style="color: #ef4444;">*</span></label>
-                <div class="input-group">
-                  <span class="input-prefix">https://you.fyi/</span>
-                  <input id="settings-ws-slug" class="form-control"
-                    style="border-radius: 0; border-left: 0; border-right: 0; padding-left: 8px;">
-                  <span class="input-suffix">/kit</span>
+                <div class="form-group">
+                  <label for="settings-ws-slug">Workspace slug <span style="color: #ef4444;">*</span></label>
+                  <div class="input-group">
+                    <span class="input-prefix">https://you.fyi/</span>
+                    <input id="settings-ws-slug" class="form-control"
+                      style="border-radius: 0; border-left: 0; border-right: 0; padding-left: 8px;">
+                    <span class="input-suffix">/kit</span>
+                  </div>
+                  <p style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">
+                    Your workspace slug is the text that will appear in the You.fyi links you share.
+                  </p>
                 </div>
-                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">
-                  Your workspace slug is the text that will appear in the You.fyi links you share.
+                <button class="btn btn-secondary" disabled>Save</button>
+              </div>
+
+              <!-- Share Workspace -->
+              <div style="margin-top: 32px; padding: 24px; border: 1px solid var(--border); border-radius: 8px;">
+                <h4 style="margin: 0 0 16px 0;">Share Workspace</h4>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+                  Share this link to give others access to your workspace.
                 </p>
+                <div style="display: flex; gap: 12px;">
+                  <input id="share-workspace-link" class="form-control" readonly>
+                  <button id="copy-workspace-link" class="btn btn-primary" style="white-space: nowrap;">Copy
+                    Link</button>
+                </div>
               </div>
-              <button class="btn btn-secondary" disabled>Save</button>
-            </div>
 
-            <!-- Share Workspace -->
-            <div style="margin-top: 32px; padding: 24px; border: 1px solid var(--border); border-radius: 8px;">
-              <h4 style="margin: 0 0 16px 0;">Share Workspace</h4>
-              <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
-                Share this link to give others access to your workspace.
-              </p>
-              <div style="display: flex; gap: 12px;">
-                <input id="share-workspace-link" class="form-control" readonly>
-                <button id="copy-workspace-link" class="btn btn-primary" style="white-space: nowrap;">Copy Link</button>
+              <!-- Delete Workspace -->
+              <div style="margin-top: 32px; border: 1px solid #fee2e2; border-radius: 8px; overflow: hidden;">
+                <div style="padding: 16px 24px; background: #fef2f2; border-bottom: 1px solid #fee2e2;">
+                  <h4 style="margin: 0; color: #b91c1c; font-size: 16px;">Delete Workspace</h4>
+                </div>
+                <div style="padding: 24px;">
+                  <p style="font-size: 14px; color: #4b5563; margin-bottom: 16px;">
+                    Deleting this workspace will remove all of its users, kits, assets, and content. This action cannot
+                    be
+                    undone.
+                  </p>
+                  <button id="del-ws" class="btn"
+                    style="background: #fff; border: 1px solid #ef4444; color: #ef4444;">Delete Workspace</button>
+                </div>
               </div>
-            </div>
 
-            <!-- Delete Workspace -->
-            <div style="margin-top: 32px; border: 1px solid #fee2e2; border-radius: 8px; overflow: hidden;">
-              <div style="padding: 16px 24px; background: #fef2f2; border-bottom: 1px solid #fee2e2;">
-                <h4 style="margin: 0; color: #b91c1c; font-size: 16px;">Delete Workspace</h4>
-              </div>
-              <div style="padding: 24px;">
-                <p style="font-size: 14px; color: #4b5563; margin-bottom: 16px;">
-                  Deleting this workspace will remove all of its users, kits, assets, and content. This action cannot be
-                  undone.
-                </p>
-                <button id="del-ws" class="btn"
-                  style="background: #fff; border: 1px solid #ef4444; color: #ef4444;">Delete Workspace</button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- About View -->
-        <div id="view-about" class="hidden">
-          <div class="card" style="max-width: 800px; margin: 0 auto;">
-            <div style="text-align: center; padding: 40px 0;">
-              <img src="/ui/logo-icon.png" alt="You.FYI" style="height: 64px; margin-bottom: 16px;">
-              <h2 style="margin-bottom: 8px;">You.fyi</h2>
-              <p style="color: var(--text-secondary); margin-bottom: 24px;">Smart Workspace Platform with RAG
-                Capabilities</p>
-              <div style="display: flex; gap: 16px; justify-content: center;">
-                <a href="https://github.com/saurabhhhcodes/You.Fyi" target="_blank" class="btn btn-secondary">GitHub</a>
-                <a href="https://you.fyi" target="_blank" class="btn btn-primary">Website</a>
-              </div>
-            </div>
-
-            <div style="padding: 24px; border-top: 1px solid var(--border);">
-              <h4 style="margin-bottom: 16px;">Features</h4>
-              <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                <li>🏢 <strong>Workspaces</strong>: Organize your content</li>
-                <li>📦 <strong>Kits</strong>: Bundle assets together</li>
-                <li>🤖 <strong>RAG AI</strong>: Chat with your documents</li>
-                <li>🔗 <strong>Sharing</strong>: Share kits with public links</li>
-              </ul>
-            </div>
-
-            <div
-              style="padding: 24px; border-top: 1px solid var(--border); text-align: center; font-size: 12px; color: var(--text-secondary);">
-              Version 1.0.0 &bull; Built with FastAPI & Vanilla JS
             </div>
           </div>
-        </div>
 
-      </div>
+          <!-- About View -->
+          <div id="view-about" class="hidden">
+            <div class="card" style="max-width: 800px; margin: 0 auto;">
+              <div style="text-align: center; padding: 40px 0;">
+                <img src="/ui/logo-icon.png" alt="You.FYI" style="height: 64px; margin-bottom: 16px;">
+                <h2 style="margin-bottom: 8px;">You.fyi</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">Smart Workspace Platform with RAG
+                  Capabilities</p>
+                <div style="display: flex; gap: 16px; justify-content: center;">
+                  <a href="https://github.com/saurabhhhcodes/You.Fyi" target="_blank"
+                    class="btn btn-secondary">GitHub</a>
+                  <a href="https://you.fyi" target="_blank" class="btn btn-primary">Website</a>
+                </div>
+              </div>
+
+              <div style="padding: 24px; border-top: 1px solid var(--border);">
+                <h4 style="margin-bottom: 16px;">Features</h4>
+                <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                  <li>🏢 <strong>Workspaces</strong>: Organize your content</li>
+                  <li>📦 <strong>Kits</strong>: Bundle assets together</li>
+                  <li>🤖 <strong>RAG AI</strong>: Chat with your documents</li>
+                  <li>🔗 <strong>Sharing</strong>: Share kits with public links</li>
+                </ul>
+              </div>
+
+              <div
+                style="padding: 24px; border-top: 1px solid var(--border); text-align: center; font-size: 12px; color: var(--text-secondary);">
+                Version 1.0.0 &bull; Built with FastAPI & Vanilla JS
+              </div>
+            </div>
+          </div>
+
+        </div>
     </main>
   </div>
 

@@ -140,8 +140,9 @@ body {
 }
 
 .nav-item.active {
-  background: #eff6ff;
-  color: var(--primary);
+  background: #e5e7eb;
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 .nav-icon {

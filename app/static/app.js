@@ -622,8 +622,11 @@ async function refreshKits() {
 
   if (arr.length === 0) {
     // Optional: Show empty state row
+    updateKitDropdown([]);
     return;
   }
+
+  updateKitDropdown(arr);
 
   arr.forEach(k => {
     const tr = document.createElement('tr');
@@ -685,11 +688,15 @@ function selectKit(k) {
   // Update details panel
   el('detail-kit-name').textContent = k.name;
   el('detail-kit-name-input').value = k.name;
+  el('detail-kit-desc-input').value = k.description || '';
   el('detail-kit-assets-count').value = `${k.assets?.length || 0} assets`;
 
   // Show content, hide empty state
   el('kit-details-content').classList.remove('hidden');
   el('kit-details-empty').style.display = 'none';
+
+  // Refresh Shared Links
+  refreshSharedLinks(k.id);
 
   // Clear previous RAG results
   el('rag-result').classList.add('hidden');
@@ -697,11 +704,99 @@ function selectKit(k) {
   el('rag-query').value = '';
 }
 
+function updateKitDropdown(kits) {
+  const select = el('target-kit-select');
+  if (!select) return;
+  select.innerHTML = '<option value="">Select Kit...</option>';
+  kits.forEach(k => {
+    const opt = document.createElement('option');
+    opt.value = k.id;
+    opt.textContent = k.name;
+    select.appendChild(opt);
+  });
+}
+
+async function refreshSharedLinks(kitId) {
+  const container = el('kit-shared-links-container');
+  const list = el('kit-shared-links-list');
+  if (!container || !list) return;
+
+  try {
+    const res = await fetch(`/sharing-links/kit/${kitId}`);
+    if (res.ok) {
+      const links = await res.json();
+      list.innerHTML = '';
+      if (links.length > 0) {
+        container.classList.remove('hidden');
+        links.forEach(l => {
+          const div = document.createElement('div');
+          div.className = 'input-group';
+          div.style.marginBottom = '4px';
+          const url = `${window.location.origin}/ui/shared.html?token=${l.token}`;
+          div.innerHTML = `
+            <input class="form-control" value="${url}" readonly style="font-size: 12px; height: 30px;">
+            <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('${url}').then(() => showToast('Copied', 'Link copied', 'success'))" style="height: 30px; padding: 0 8px;">📋</button>
+            <button class="btn btn-secondary" onclick="deleteShareLink('${l.id}', '${kitId}')" style="height: 30px; padding: 0 8px; color: var(--danger);">✕</button>
+          `;
+          list.appendChild(div);
+        });
+      } else {
+        container.classList.add('hidden');
+      }
+    }
+  } catch (e) {
+    console.error('Failed to fetch shared links', e);
+  }
+}
+
+async function deleteShareLink(linkId, kitId) {
+  if (!confirm('Deactivate this link?')) return;
+  await fetch(`/sharing-links/${linkId}`, { method: 'DELETE' });
+  refreshSharedLinks(kitId);
+}
+
+async function saveKitDetails() {
+  if (!state.lastKitId) return;
+  const name = el('detail-kit-name-input').value.trim();
+  const desc = el('detail-kit-desc-input').value.trim();
+
+  if (!name) { showToast('Error', 'Name is required', 'error'); return; }
+
+  const btn = el('save-kit-details-btn');
+  setLoading(btn, true, 'Saving...');
+
+  try {
+    const res = await fetch(`/kits/kit/${state.lastKitId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, description: desc })
+    });
+
+    if (res.ok) {
+      showToast('Saved', 'Kit details updated', 'success');
+      await refreshKits(); // Refresh list
+      // Re-select to update UI state if needed, or just update local state
+      // refreshKits might clear selection if not careful, but our logic preserves it usually?
+      // Actually refreshKits rebuilds the list.
+      // We should probably re-select the kit.
+      const updatedKit = await res.json();
+      selectKit(updatedKit);
+    } else {
+      showToast('Error', 'Failed to update kit', 'error');
+    }
+  } catch (e) {
+    showToast('Error', e.message, 'error');
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
 // --- Kit Actions ---
 
 async function addSelectedToKit() {
-  if (!state.lastKitId) {
-    showToast('Action Required', 'Select or create a kit first (use Kits tab).', 'error');
+  const targetKitId = el('target-kit-select').value;
+  if (!targetKitId) {
+    showToast('Action Required', 'Select a kit from the dropdown first.', 'error');
     return
   }
   const checks = Array.from(document.querySelectorAll('#asset-list input[type=checkbox]:checked'))
@@ -714,7 +809,7 @@ async function addSelectedToKit() {
   const btn = el('add-to-kit-btn');
   setLoading(btn, true, 'Adding...');
 
-  const res = await fetch(`/kits/kit/${state.lastKitId}`, {
+  const res = await fetch(`/kits/kit/${targetKitId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ asset_ids: ids })
@@ -1078,6 +1173,7 @@ window.addEventListener('load', async () => {
 
   // Modal Triggers
   el('btn-new-asset').addEventListener('click', () => openModal('modal-create-asset'));
+  el('save-kit-details-btn').addEventListener('click', saveKitDetails);
   el('create-kit').addEventListener('click', () => openModal('modal-create-kit'));
   el('create-ws').addEventListener('click', () => openModal('modal-create-workspace'));
 
