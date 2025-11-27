@@ -10,7 +10,9 @@ import sys
 import time
 from pathlib import Path
 
-BASE_URL = "http://localhost:8001"
+import os
+
+BASE_URL = os.getenv("API_URL", "http://localhost:8001")
 TIMESTAMP = str(int(time.time()))
 
 class Colors:

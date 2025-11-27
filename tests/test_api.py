@@ -1,53 +1,8 @@
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-import os
-import tempfile
-from app.main import app
-from app.database import Base, get_db
-
-
-# Use a different temp database for each test session
-test_db_file = tempfile.NamedTemporaryFile(delete=False, suffix=".db")
-test_db_file.close()
-SQLALCHEMY_DATABASE_URL = f"sqlite:///{test_db_file.name}"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Create tables before tests
-Base.metadata.create_all(bind=engine)
-
-
-def override_get_db():
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
-client = TestClient(app)
-
-
-@pytest.fixture(autouse=True)
-def setup_teardown_db():
-    """Setup and teardown for each test"""
-    # Before test: clear tables
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
-    yield
-    # After test: cleanup
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
 
 
 class TestWorkspaces:
-    def test_create_workspace(self):
+    def test_create_workspace(self, client):
         response = client.post(
             "/workspaces/",
             json={"name": "Test Workspace", "description": "Test Description"}
@@ -58,7 +13,7 @@ class TestWorkspaces:
         assert data["description"] == "Test Description"
         assert "id" in data
 
-    def test_list_workspaces(self):
+    def test_list_workspaces(self, client):
         # Create workspaces
         client.post(
             "/workspaces/",
@@ -74,7 +29,7 @@ class TestWorkspaces:
         data = response.json()
         assert len(data) == 2
 
-    def test_get_workspace(self):
+    def test_get_workspace(self, client):
         # Create workspace
         create_response = client.post(
             "/workspaces/",
@@ -89,11 +44,11 @@ class TestWorkspaces:
         assert data["id"] == workspace_id
         assert data["name"] == "Test Workspace"
 
-    def test_get_nonexistent_workspace(self):
+    def test_get_nonexistent_workspace(self, client):
         response = client.get("/workspaces/nonexistent-id")
         assert response.status_code == 404
 
-    def test_delete_workspace(self):
+    def test_delete_workspace(self, client):
         # Create workspace
         create_response = client.post(
             "/workspaces/",
@@ -111,7 +66,7 @@ class TestWorkspaces:
 
 
 class TestAssets:
-    def test_create_asset(self):
+    def test_create_asset(self, client):
         # Create workspace first
         workspace_response = client.post(
             "/workspaces/",
@@ -135,7 +90,7 @@ class TestAssets:
         assert data["content"] == "This is test content"
         assert "id" in data
 
-    def test_list_assets(self):
+    def test_list_assets(self, client):
         # Create workspace
         workspace_response = client.post(
             "/workspaces/",
@@ -166,7 +121,7 @@ class TestAssets:
         data = response.json()
         assert len(data) == 2
 
-    def test_get_asset(self):
+    def test_get_asset(self, client):
         # Create workspace and asset
         workspace_response = client.post(
             "/workspaces/",
@@ -189,7 +144,7 @@ class TestAssets:
         data = response.json()
         assert data["id"] == asset_id
 
-    def test_delete_asset(self):
+    def test_delete_asset(self, client):
         # Create workspace and asset
         workspace_response = client.post(
             "/workspaces/",
@@ -213,7 +168,7 @@ class TestAssets:
 
 
 class TestKits:
-    def test_create_kit(self):
+    def test_create_kit(self, client):
         # Create workspace
         workspace_response = client.post(
             "/workspaces/",
@@ -235,7 +190,7 @@ class TestKits:
         assert data["name"] == "Test Kit"
         assert "id" in data
 
-    def test_create_kit_with_assets(self):
+    def test_create_kit_with_assets(self, client):
         # Create workspace
         workspace_response = client.post(
             "/workspaces/",
@@ -277,7 +232,7 @@ class TestKits:
         data = response.json()
         assert len(data["assets"]) == 2
 
-    def test_list_kits(self):
+    def test_list_kits(self, client):
         # Create workspace
         workspace_response = client.post(
             "/workspaces/",
@@ -300,7 +255,7 @@ class TestKits:
         data = response.json()
         assert len(data) == 2
 
-    def test_get_kit(self):
+    def test_get_kit(self, client):
         # Create workspace and kit
         workspace_response = client.post(
             "/workspaces/",
@@ -319,7 +274,7 @@ class TestKits:
         data = response.json()
         assert data["id"] == kit_id
 
-    def test_update_kit(self):
+    def test_update_kit(self, client):
         # Create workspace and kit
         workspace_response = client.post(
             "/workspaces/",
@@ -343,7 +298,7 @@ class TestKits:
         assert data["name"] == "Updated Kit"
         assert data["description"] == "New Description"
 
-    def test_delete_kit(self):
+    def test_delete_kit(self, client):
         # Create workspace and kit
         workspace_response = client.post(
             "/workspaces/",
@@ -363,7 +318,7 @@ class TestKits:
 
 
 class TestSharingLinks:
-    def test_create_sharing_link(self):
+    def test_create_sharing_link(self, client):
         # Create workspace and kit
         workspace_response = client.post(
             "/workspaces/",
@@ -388,7 +343,7 @@ class TestSharingLinks:
         assert data["is_active"] is True
         assert "token" in data
 
-    def test_get_sharing_link_by_token(self):
+    def test_get_sharing_link_by_token(self, client):
         # Create workspace, kit, and sharing link
         workspace_response = client.post(
             "/workspaces/",
@@ -414,7 +369,7 @@ class TestSharingLinks:
         data = response.json()
         assert data["token"] == token
 
-    def test_deactivate_sharing_link(self):
+    def test_deactivate_sharing_link(self, client):
         # Create workspace, kit, and sharing link
         workspace_response = client.post(
             "/workspaces/",
@@ -442,7 +397,7 @@ class TestSharingLinks:
 
 
 class TestIntegration:
-    def test_complete_workflow(self):
+    def test_complete_workflow(self, client):
         """Test complete workflow: workspace -> assets -> kit -> sharing link -> RAG query"""
         # Create workspace
         ws = client.post("/workspaces/", json={"name": "Complete Test", "description": "Full workflow"})

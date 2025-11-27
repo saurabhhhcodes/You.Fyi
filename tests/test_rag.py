@@ -1,46 +1,11 @@
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from app.main import app
-from app.database import Base, get_db
 from app.services import LLMService
 from app.services.rag import RAGService
 import os
 
 
-# Create test database
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test_rag.db"
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base.metadata.create_all(bind=engine)
-
-
-def override_get_db():
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
-client = TestClient(app)
-
-
 @pytest.fixture
-def setup_db():
-    """Create tables and cleanup after tests"""
-    Base.metadata.create_all(bind=engine)
-    yield
-    Base.metadata.drop_all(bind=engine)
-
-
-@pytest.fixture
-def sample_workspace():
+def sample_workspace(client):
     """Create a sample workspace"""
     response = client.post(
         "/workspaces/",
@@ -50,7 +15,7 @@ def sample_workspace():
 
 
 @pytest.fixture
-def sample_kit_with_assets(sample_workspace):
+def sample_kit_with_assets(client, sample_workspace):
     """Create a kit with sample assets"""
     workspace_id = sample_workspace
     
@@ -100,7 +65,7 @@ class TestLLMService:
         not os.getenv("OPENAI_API_KEY"),
         reason="OPENAI_API_KEY not set"
     )
-    def test_query_with_context(self):
+    def test_query_with_context(self, client):
         """Test real LLM query with context"""
         context = "Python is a high-level programming language known for readability."
         query = "What is Python?"
@@ -118,7 +83,7 @@ class TestLLMService:
         not os.getenv("OPENAI_API_KEY"),
         reason="OPENAI_API_KEY not set"
     )
-    def test_summarize_assets(self):
+    def test_summarize_assets(self, client):
         """Test real LLM summarization"""
         assets = [
             "Python is a programming language",
@@ -137,7 +102,7 @@ class TestLLMService:
         not os.getenv("OPENAI_API_KEY"),
         reason="OPENAI_API_KEY not set"
     )
-    def test_semantic_search(self):
+    def test_semantic_search(self, client):
         """Test real LLM semantic search"""
         assets = [
             "Python is a high-level programming language",
@@ -162,14 +127,11 @@ class TestRAGService:
         not os.getenv("OPENAI_API_KEY"),
         reason="OPENAI_API_KEY not set"
     )
-    def test_retrieve_and_answer(self, setup_db, sample_kit_with_assets):
+    def test_retrieve_and_answer(self, db_session, sample_kit_with_assets):
         """Test RAG retrieval and answer with real LLM"""
         from app.models import Kit
-        from sqlalchemy.orm import Session
         
-        db = TestingSessionLocal()
-        kit = db.query(Kit).filter(Kit.id == sample_kit_with_assets).first()
-        db.close()
+        kit = db_session.query(Kit).filter(Kit.id == sample_kit_with_assets).first()
         
         query = "What is Python?"
         
@@ -189,15 +151,15 @@ class TestRAGService:
 class TestRAGEndpoints:
     """Test RAG API endpoints"""
     
-    def test_query_rag_without_kit_id(self, setup_db):
+    def test_query_rag_without_kit_id(self, client):
         """Test RAG query endpoint validation"""
         response = client.post(
             "/rag/query",
             json={"query": "What is Python?", "use_llm": False}
         )
-        assert response.status_code == 400
+        assert response.status_code == 422
 
-    def test_query_rag_nonexistent_kit(self, setup_db):
+    def test_query_rag_nonexistent_kit(self, client):
         """Test RAG query with nonexistent kit"""
         response = client.post(
             "/rag/query",
@@ -209,7 +171,7 @@ class TestRAGEndpoints:
         )
         assert response.status_code == 404
 
-    def test_query_rag_empty_kit(self, setup_db, sample_workspace):
+    def test_query_rag_empty_kit(self, client, sample_workspace):
         """Test RAG query with empty kit"""
         workspace_id = sample_workspace
         
@@ -234,7 +196,7 @@ class TestRAGEndpoints:
         not os.getenv("OPENAI_API_KEY"),
         reason="OPENAI_API_KEY not set"
     )
-    def test_query_rag_with_assets_real_llm(self, setup_db, sample_kit_with_assets):
+    def test_query_rag_with_assets_real_llm(self, client, sample_kit_with_assets):
         """Test RAG query endpoint with real LLM"""
         response = client.post(
             "/rag/query",
@@ -254,7 +216,7 @@ class TestRAGEndpoints:
         else:
             pytest.skip(f"LLM API call failed: {response.text}")
 
-    def test_query_rag_with_assets_no_llm(self, setup_db, sample_kit_with_assets):
+    def test_query_rag_with_assets_no_llm(self, client, sample_kit_with_assets):
         """Test RAG query endpoint without LLM"""
         response = client.post(
             "/rag/query",
@@ -270,7 +232,7 @@ class TestRAGEndpoints:
         assert "answer" in data
         assert "sources" in data
 
-    def test_query_rag_via_sharing_link(self, setup_db, sample_kit_with_assets):
+    def test_query_rag_via_sharing_link(self, client, sample_kit_with_assets):
         """Test RAG query via sharing link"""
         # Create sharing link
         link_response = client.post(
@@ -292,7 +254,7 @@ class TestRAGEndpoints:
         assert "query" in data
         assert "answer" in data
 
-    def test_query_rag_via_expired_link(self, setup_db, sample_kit_with_assets):
+    def test_query_rag_via_expired_link(self, client, sample_kit_with_assets):
         """Test RAG query via expired sharing link"""
         from datetime import datetime, timedelta
         

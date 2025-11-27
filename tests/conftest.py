@@ -49,3 +49,14 @@ def db_session(test_db):
     session.close()
     transaction.rollback()
     connection.close()
+    
+    # Remove override
+    app.dependency_overrides.pop(get_db, None)
+
+
+from fastapi.testclient import TestClient
+
+@pytest.fixture
+def client(db_session):
+    """Return a TestClient that uses the overridden db_session"""
+    return TestClient(app)

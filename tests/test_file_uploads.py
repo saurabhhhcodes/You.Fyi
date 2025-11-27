@@ -9,12 +9,11 @@ import base64
 import io
 
 
-# Use the app's client
-client = TestClient(app)
+
 
 
 @pytest.fixture
-def workspace(db_session):
+def workspace(client, db_session):
     """Create a test workspace"""
     response = client.post(
         "/workspaces",
@@ -27,7 +26,7 @@ def workspace(db_session):
 class TestImageUpload:
     """Test uploading image files (PNG, JPG, GIF, etc.)"""
     
-    def test_upload_png_image(self, workspace, db_session):
+    def test_upload_png_image(self, client, workspace, db_session):
         """Test uploading a PNG image"""
         workspace_id = workspace["id"]
         
@@ -52,7 +51,7 @@ class TestImageUpload:
         assert data["file_size"] == len(png_data)
         assert data["description"] == "Test PNG image"
     
-    def test_upload_jpg_image(self, workspace, db_session):
+    def test_upload_jpg_image(self, client, workspace, db_session):
         """Test uploading a JPG image"""
         workspace_id = workspace["id"]
         
@@ -74,7 +73,7 @@ class TestImageUpload:
 class TestVideoUpload:
     """Test uploading video files (MP4, AVI, MOV, etc.)"""
     
-    def test_upload_mp4_video(self, workspace, db_session):
+    def test_upload_mp4_video(self, client, workspace, db_session):
         """Test uploading an MP4 video"""
         workspace_id = workspace["id"]
         video_data = b"\x00\x00\x00\x18ftypmp42"  # Minimal MP4 header
@@ -91,7 +90,7 @@ class TestVideoUpload:
         assert data["mime_type"] == "video/mp4"
         assert data["file_size"] == len(video_data)
     
-    def test_upload_webm_video(self, workspace, db_session):
+    def test_upload_webm_video(self, client, workspace, db_session):
         """Test uploading a WEBM video"""
         workspace_id = workspace["id"]
         video_data = b"\x1aE\xdf\xa3"  # WEBM signature
@@ -111,7 +110,7 @@ class TestVideoUpload:
 class TestDocumentUpload:
     """Test uploading document files (PDF, DOCX, XLSX, TXT, etc.)"""
     
-    def test_upload_pdf_document(self, workspace, db_session):
+    def test_upload_pdf_document(self, client, workspace, db_session):
         """Test uploading a PDF document"""
         workspace_id = workspace["id"]
         pdf_data = b"%PDF-1.4\n%fake pdf content"
@@ -128,7 +127,7 @@ class TestDocumentUpload:
         assert data["mime_type"] == "application/pdf"
         assert data["name"] == "document.pdf"
     
-    def test_upload_txt_document(self, workspace, db_session):
+    def test_upload_txt_document(self, client, workspace, db_session):
         """Test uploading a TXT file"""
         workspace_id = workspace["id"]
         txt_data = b"This is a plain text document.\nWith multiple lines."
@@ -144,7 +143,7 @@ class TestDocumentUpload:
         assert data["asset_type"] == "document"
         assert data["mime_type"] == "text/plain"
     
-    def test_upload_csv_document(self, workspace, db_session):
+    def test_upload_csv_document(self, client, workspace, db_session):
         """Test uploading a CSV file"""
         workspace_id = workspace["id"]
         csv_data = b"Name,Age,City\nAlice,30,NYC\nBob,25,LA"
@@ -164,7 +163,7 @@ class TestDocumentUpload:
 class TestExecutableUpload:
     """Test uploading executable and script files"""
     
-    def test_upload_exe_executable(self, workspace, db_session):
+    def test_upload_exe_executable(self, client, workspace, db_session):
         """Test uploading an EXE executable"""
         workspace_id = workspace["id"]
         exe_data = b"MZ\x90\x00"  # EXE header
@@ -180,7 +179,7 @@ class TestExecutableUpload:
         assert data["asset_type"] == "executable"
         assert data["mime_type"] == "application/x-msdownload"
     
-    def test_upload_python_script(self, workspace, db_session):
+    def test_upload_python_script(self, client, workspace, db_session):
         """Test uploading a Python script"""
         workspace_id = workspace["id"]
         py_data = b"#!/usr/bin/env python3\nprint('Hello, World!')"
@@ -200,7 +199,7 @@ class TestExecutableUpload:
 class TestArchiveUpload:
     """Test uploading archive files"""
     
-    def test_upload_zip_archive(self, workspace, db_session):
+    def test_upload_zip_archive(self, client, workspace, db_session):
         """Test uploading a ZIP archive"""
         workspace_id = workspace["id"]
         zip_data = b"PK\x03\x04"  # ZIP file signature
@@ -216,7 +215,7 @@ class TestArchiveUpload:
         assert data["asset_type"] == "archive"
         assert data["mime_type"] == "application/zip"
     
-    def test_upload_tar_gz_archive(self, workspace, db_session):
+    def test_upload_tar_gz_archive(self, client, workspace, db_session):
         """Test uploading a TAR.GZ archive"""
         workspace_id = workspace["id"]
         targz_data = b"\x1f\x8b\x08"  # GZIP header
@@ -236,7 +235,7 @@ class TestArchiveUpload:
 class TestFileOperations:
     """Test file upload/download/list operations"""
     
-    def test_upload_and_list_files(self, workspace, db_session):
+    def test_upload_and_list_files(self, client, workspace, db_session):
         """Test uploading multiple files and listing them"""
         workspace_id = workspace["id"]
         
@@ -262,7 +261,7 @@ class TestFileOperations:
         assert assets[0]["name"] == "file1.txt"
         assert assets[1]["name"] == "file2.txt"
     
-    def test_download_uploaded_file(self, workspace, db_session):
+    def test_download_uploaded_file(self, client, workspace, db_session):
         """Test downloading an uploaded file"""
         workspace_id = workspace["id"]
         
@@ -281,7 +280,7 @@ class TestFileOperations:
         assert download_response.content == file_content
         assert "text/plain" in download_response.headers["content-type"]
     
-    def test_get_file_metadata(self, workspace, db_session):
+    def test_get_file_metadata(self, client, workspace, db_session):
         """Test retrieving file metadata without downloading"""
         workspace_id = workspace["id"]
         file_content = b"Metadata test content"
@@ -308,7 +307,7 @@ class TestFileOperations:
 class TestErrorHandling:
     """Test error handling in file uploads"""
     
-    def test_upload_to_nonexistent_workspace(self, db_session):
+    def test_upload_to_nonexistent_workspace(self, client, db_session):
         """Test uploading to a workspace that doesn't exist"""
         response = client.post(
             f"/assets/nonexistent-id/upload",
@@ -317,19 +316,19 @@ class TestErrorHandling:
         assert response.status_code == 404
         assert "Workspace not found" in response.json()["detail"]
     
-    def test_download_nonexistent_file(self, db_session):
+    def test_download_nonexistent_file(self, client, db_session):
         """Test downloading a file that doesn't exist"""
         response = client.get("/assets/asset/nonexistent-id/download")
         assert response.status_code == 404
         assert "Asset not found" in response.json()["detail"]
     
-    def test_get_nonexistent_file_metadata(self, db_session):
+    def test_get_nonexistent_file_metadata(self, client, db_session):
         """Test getting metadata for non-existent file"""
         response = client.get("/assets/asset/nonexistent-id")
         assert response.status_code == 404
         assert "Asset not found" in response.json()["detail"]
     
-    def test_upload_without_file(self, workspace, db_session):
+    def test_upload_without_file(self, client, workspace, db_session):
         """Test upload endpoint without providing file"""
         workspace_id = workspace["id"]
         response = client.post(f"/assets/{workspace_id}/upload")
@@ -339,7 +338,7 @@ class TestErrorHandling:
 class TestLargeFiles:
     """Test handling of large files"""
     
-    def test_upload_large_binary_file(self, workspace, db_session):
+    def test_upload_large_binary_file(self, client, workspace, db_session):
         """Test uploading a large binary file"""
         workspace_id = workspace["id"]
         # Create 1MB of data
@@ -359,7 +358,7 @@ class TestLargeFiles:
 class TestMimeTypeDetection:
     """Test MIME type detection and asset type classification"""
     
-    def test_mime_type_detection_various_formats(self, workspace, db_session):
+    def test_mime_type_detection_various_formats(self, client, workspace, db_session):
         """Test MIME type detection for various file formats"""
         workspace_id = workspace["id"]
         
@@ -384,7 +383,7 @@ class TestMimeTypeDetection:
 class TestFileIntegration:
     """Integration tests for file uploads with other features"""
     
-    def test_upload_and_add_to_kit(self, workspace, db_session):
+    def test_upload_and_add_to_kit(self, client, workspace, db_session):
         """Test uploading files and adding them to a kit"""
         workspace_id = workspace["id"]
         
@@ -408,7 +407,7 @@ class TestFileIntegration:
         assert len(kit_data["assets"]) == 1
         assert kit_data["assets"][0]["id"] == asset_id
     
-    def test_multiple_file_uploads_different_types(self, workspace, db_session):
+    def test_multiple_file_uploads_different_types(self, client, workspace, db_session):
         """Test uploading different file types to same workspace"""
         workspace_id = workspace["id"]
         
