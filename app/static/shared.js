@@ -40,6 +40,9 @@ async function init() {
       el('kit-desc').textContent = 'You have access to query documents in this kit.';
     }
 
+    // 3. Fetch Assets
+    await fetchAssets();
+
   } catch (e) {
     showError(e.message);
   }
@@ -125,5 +128,78 @@ function setQuery(q) {
 
 // Expose setQuery to global scope for HTML buttons
 window.setQuery = setQuery;
+
+// Expose setQuery to global scope for HTML buttons
+window.setQuery = setQuery;
+
+async function fetchAssets() {
+  try {
+    const res = await fetch(`/sharing-links/token/${token}/assets`);
+    if (!res.ok) throw new Error('Failed to load assets');
+    const assets = await res.json();
+
+    const container = el('file-list');
+    container.innerHTML = '';
+
+    if (assets.length === 0) {
+      el('files-empty').style.display = 'block';
+      return;
+    }
+
+    assets.forEach(a => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.padding = '16px';
+      card.style.border = '1px solid #eee';
+      card.style.borderRadius = '8px';
+      card.style.background = '#fff';
+      card.style.display = 'flex';
+      card.style.flexDirection = 'column';
+      card.style.gap = '8px';
+
+      const icon = getFileIcon(a.mime_type);
+
+      card.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+          <span style="font-size:20px;">${icon}</span>
+          <div style="font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${a.name}">${a.name}</div>
+        </div>
+        <div style="font-size:12px; color:#666;">${formatSize(a.file_size)} • ${new Date(a.created_at).toLocaleDateString()}</div>
+        <div style="margin-top:auto; display:flex; gap:8px;">
+          <button class="btn small" onclick="downloadAsset('${a.id}')" style="flex:1;">Download</button>
+          <button class="btn small secondary" onclick="setQuery('Summarize ${a.name}')" style="flex:1;">Ask AI</button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+
+  } catch (e) {
+    console.error(e);
+    el('files-empty').textContent = 'Error loading files.';
+    el('files-empty').style.display = 'block';
+  }
+}
+
+function downloadAsset(id) {
+  window.open(`/assets/asset/${id}/download`, '_blank');
+}
+
+function getFileIcon(mime) {
+  if (!mime) return '📄';
+  if (mime.startsWith('image/')) return '🖼️';
+  if (mime === 'application/pdf') return '📕';
+  if (mime.startsWith('text/')) return '📝';
+  if (mime.startsWith('audio/')) return '🎵';
+  if (mime.startsWith('video/')) return '🎬';
+  return '📄';
+}
+
+function formatSize(bytes) {
+  if (!bytes) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
 
 init();

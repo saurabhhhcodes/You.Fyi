@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.database import get_db
 from app.models import SharingLink, Kit, Workspace, WorkspaceSharingLink
-from app.schemas import SharingLinkCreate, SharingLinkRead, WorkspaceSharingLinkRead
+from app.schemas import SharingLinkCreate, SharingLinkRead, WorkspaceSharingLinkRead, AssetRead
 import secrets
 from datetime import datetime, timedelta
 
@@ -158,3 +158,32 @@ def list_workspace_sharing_links(workspace_id: str, db: Session = Depends(get_db
         raise HTTPException(status_code=404, detail="Workspace not found")
     
     return db.query(WorkspaceSharingLink).filter(WorkspaceSharingLink.workspace_id == workspace_id).all()
+
+
+@router.get("/token/{token}/assets", response_model=list[AssetRead])
+def list_sharing_link_assets(token: str, db: Session = Depends(get_db)):
+    """List assets accessible via a sharing link"""
+    # Try Kit Link
+    link = db.query(SharingLink).filter(SharingLink.token == token).first()
+    if link:
+        if not link.is_active:
+            raise HTTPException(status_code=403, detail="Sharing link is inactive")
+        if link.expires_at and link.expires_at < datetime.utcnow():
+            raise HTTPException(status_code=403, detail="Sharing link has expired")
+        
+        kit = db.query(Kit).filter(Kit.id == link.kit_id).first()
+        if not kit:
+            raise HTTPException(status_code=404, detail="Kit not found")
+        return kit.assets
+
+    # Try Workspace Link
+    ws_link = db.query(WorkspaceSharingLink).filter(WorkspaceSharingLink.token == token).first()
+    if ws_link:
+        if not ws_link.is_active:
+            raise HTTPException(status_code=403, detail="Sharing link is inactive")
+        if ws_link.expires_at and ws_link.expires_at < datetime.utcnow():
+            raise HTTPException(status_code=403, detail="Sharing link has expired")
+        
+        return db.query(Asset).filter(Asset.workspace_id == ws_link.workspace_id).all()
+
+    raise HTTPException(status_code=404, detail="Sharing link not found")
