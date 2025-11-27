@@ -91,6 +91,18 @@ class SharingLinkRead(BaseModel):
         from_attributes = True
 
 
+class WorkspaceSharingLinkRead(BaseModel):
+    id: str
+    workspace_id: str
+    token: str
+    is_active: bool
+    created_at: datetime
+    expires_at: Optional[datetime]
+
+    class Config:
+        from_attributes = True
+
+
 class RagQueryRequest(BaseModel):
     query: str
     kit_id: Optional[str] = None
@@ -103,3 +115,13 @@ class RagQueryResponse(BaseModel):
     answer: str
     sources: List[str]
     model: str
+
+
+class WorkspaceMerge(BaseModel):
+    source_id: str
+    target_id: str
+
+
+class KitMerge(BaseModel):
+    source_ids: List[str]
+    target_id: str

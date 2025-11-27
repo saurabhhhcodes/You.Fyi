@@ -26,6 +26,7 @@ class Workspace(Base):
     # Relationships
     assets = relationship("Asset", back_populates="workspace", cascade="all, delete-orphan")
     kits = relationship("Kit", back_populates="workspace", cascade="all, delete-orphan")
+    sharing_links = relationship("WorkspaceSharingLink", back_populates="workspace", cascade="all, delete-orphan")
 
 
 class Asset(Base):
@@ -76,3 +77,17 @@ class SharingLink(Base):
     
     # Relationships
     kit = relationship("Kit", back_populates="sharing_links")
+
+
+class WorkspaceSharingLink(Base):
+    __tablename__ = "workspace_sharing_links"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    workspace_id = Column(String, ForeignKey("workspaces.id"), nullable=False)
+    token = Column(String, unique=True, index=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, nullable=True)
+    
+    # Relationships
+    workspace = relationship("Workspace", back_populates="sharing_links")

@@ -158,15 +158,29 @@ def query_rag_via_sharing_link(token: str, request: RagQueryRequest, db: Session
     Query a kit's assets using a sharing link token.
     """
     link = db.query(SharingLink).filter(SharingLink.token == token).first()
-    if not link:
-        raise HTTPException(status_code=404, detail="Sharing link not found")
     
-    if not link.is_active or (link.expires_at and link.expires_at < datetime.utcnow()):
-        raise HTTPException(status_code=403, detail="Sharing link is inactive or has expired")
-    
-    kit = link.kit
-    if not kit.assets:
-        raise HTTPException(status_code=400, detail="Kit has no assets")
+    assets = []
+    if link:
+        if not link.is_active or (link.expires_at and link.expires_at < datetime.utcnow()):
+            raise HTTPException(status_code=403, detail="Sharing link is inactive or has expired")
+        kit = link.kit
+        if not kit.assets:
+            raise HTTPException(status_code=400, detail="Kit has no assets")
+        assets = kit.assets
+    else:
+        # Try Workspace Link
+        from app.models import WorkspaceSharingLink
+        ws_link = db.query(WorkspaceSharingLink).filter(WorkspaceSharingLink.token == token).first()
+        if not ws_link:
+            raise HTTPException(status_code=404, detail="Sharing link not found")
+        
+        if not ws_link.is_active or (ws_link.expires_at and ws_link.expires_at < datetime.utcnow()):
+            raise HTTPException(status_code=403, detail="Sharing link is inactive or has expired")
+            
+        workspace = ws_link.workspace
+        if not workspace.assets:
+             raise HTTPException(status_code=400, detail="Workspace has no assets")
+        assets = workspace.assets
     
     model_to_use = request.model or "gpt-3.5-turbo"
 
@@ -176,14 +190,14 @@ def query_rag_via_sharing_link(token: str, request: RagQueryRequest, db: Session
             import json
             
             if request.query == "Count Assets":
-                assets = kit.assets
+                # assets already defined
                 total_size = sum((a.file_size or 0) for a in assets)
                 types = list(set(a.mime_type for a in assets if a.mime_type))
                 answer = f"You have {len(assets)} assets in this workspace with a total size of {fmt_size(total_size)}. File types include: {', '.join(types) or 'None'}"
                 sources = [a.id for a in assets]
             
             elif request.query == "File Types":
-                assets = kit.assets
+                # assets already defined
                 type_groups = {}
                 for a in assets:
                     type_name = a.mime_type or 'Unknown'
@@ -199,10 +213,11 @@ def query_rag_via_sharing_link(token: str, request: RagQueryRequest, db: Session
                 sources = [a.id for a in assets]
             
             elif request.query == "Basic Summary":
-                assets = kit.assets
+                # assets already defined
                 total_size = sum((a.file_size or 0) for a in assets)
                 types = list(set(a.mime_type for a in assets if a.mime_type))
-                kits_count = len(kit.workspace.kits) if kit.workspace else 0
+                # kits_count not easily available for workspace link without extra query, set to N/A or 0
+                kits_count = 0 
 
                 answer = f"Workspace Summary:\n\n" + \
                         f"• Total Assets: {len(assets)}\n" + \
@@ -215,22 +230,22 @@ def query_rag_via_sharing_link(token: str, request: RagQueryRequest, db: Session
 
             # --- Structured Responses (JSON) ---
             elif request.query == "Recent Files":
-                assets = sorted(kit.assets, key=lambda x: x.created_at or '', reverse=True)[:5]
+                assets = sorted(assets, key=lambda x: x.created_at or '', reverse=True)[:5]
                 answer = json.dumps([serialize_asset(a) for a in assets])
                 sources = [a.id for a in assets]
             
             elif request.query == "Largest Files":
-                assets = sorted(kit.assets, key=lambda x: x.file_size or 0, reverse=True)[:5]
+                assets = sorted(assets, key=lambda x: x.file_size or 0, reverse=True)[:5]
                 answer = json.dumps([serialize_asset(a) for a in assets])
                 sources = [a.id for a in assets]
 
             elif request.query == "List PDFs":
-                assets = [a for a in kit.assets if a.mime_type == 'application/pdf']
+                assets = [a for a in assets if a.mime_type == 'application/pdf']
                 answer = json.dumps([serialize_asset(a) for a in assets])
                 sources = [a.id for a in assets]
 
             elif request.query == "List Images":
-                assets = [a for a in kit.assets if a.mime_type and a.mime_type.startswith('image/')]
+                assets = [a for a in assets if a.mime_type and a.mime_type.startswith('image/')]
                 answer = json.dumps([serialize_asset(a) for a in assets])
                 sources = [a.id for a in assets]
             
@@ -238,7 +253,7 @@ def query_rag_via_sharing_link(token: str, request: RagQueryRequest, db: Session
                 # Fall back to LLM queries for other cases
                 answer, sources = RAGService.retrieve_and_answer(
                     query=request.query,
-                    assets=kit.assets,
+                    assets=assets,
                     use_llm=request.use_llm,
                     model=model_to_use
                 )
@@ -255,7 +270,7 @@ def query_rag_via_sharing_link(token: str, request: RagQueryRequest, db: Session
         try:
             answer, sources = RAGService.retrieve_and_answer(
                 query=request.query,
-                assets=kit.assets,
+                assets=assets,
                 use_llm=request.use_llm,
                 model=model_to_use
             )

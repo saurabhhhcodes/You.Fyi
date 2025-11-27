@@ -31,8 +31,14 @@ async function init() {
     // For now, we'll just show the chat interface.
     el('loading').style.display = 'none';
     el('content').style.display = 'block';
-    el('kit-name').textContent = 'Shared Knowledge Base';
-    el('kit-desc').textContent = 'You have access to query documents in this kit.';
+
+    if (linkData.workspace_id) {
+      el('kit-name').textContent = 'Shared Workspace';
+      el('kit-desc').textContent = 'You have access to query all documents in this workspace.';
+    } else {
+      el('kit-name').textContent = 'Shared Knowledge Base';
+      el('kit-desc').textContent = 'You have access to query documents in this kit.';
+    }
 
   } catch (e) {
     showError(e.message);

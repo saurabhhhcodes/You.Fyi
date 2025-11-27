@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.database import get_db
-from app.models import SharingLink, Kit
-from app.schemas import SharingLinkCreate, SharingLinkRead
+from app.models import SharingLink, Kit, Workspace, WorkspaceSharingLink
+from app.schemas import SharingLinkCreate, SharingLinkRead, WorkspaceSharingLinkRead
 import secrets
 from datetime import datetime, timedelta
 
@@ -38,21 +38,33 @@ def create_sharing_link(kit_id: str, link_data: SharingLinkCreate, db: Session =
     return db_link
 
 
-@router.get("/token/{token}", response_model=SharingLinkRead)
+from typing import Union
+
+@router.get("/token/{token}", response_model=Union[SharingLinkRead, WorkspaceSharingLinkRead])
 def get_sharing_link_by_token(token: str, db: Session = Depends(get_db)):
     """Get sharing link details by token"""
+    # Try Kit Link
     link = db.query(SharingLink).filter(SharingLink.token == token).first()
-    if not link:
-        raise HTTPException(status_code=404, detail="Sharing link not found")
-    
-    # Check if link is still active
-    if not link.is_active:
-        raise HTTPException(status_code=403, detail="Sharing link is inactive")
-    
-    if link.expires_at and link.expires_at < datetime.utcnow():
-        raise HTTPException(status_code=403, detail="Sharing link has expired")
-    
-    return link
+    if link:
+        # Check if link is still active
+        if not link.is_active:
+            raise HTTPException(status_code=403, detail="Sharing link is inactive")
+        
+        if link.expires_at and link.expires_at < datetime.utcnow():
+            raise HTTPException(status_code=403, detail="Sharing link has expired")
+        return link
+
+    # Try Workspace Link
+    ws_link = db.query(WorkspaceSharingLink).filter(WorkspaceSharingLink.token == token).first()
+    if ws_link:
+        if not ws_link.is_active:
+            raise HTTPException(status_code=403, detail="Sharing link is inactive")
+        
+        if ws_link.expires_at and ws_link.expires_at < datetime.utcnow():
+            raise HTTPException(status_code=403, detail="Sharing link has expired")
+        return ws_link
+
+    raise HTTPException(status_code=404, detail="Sharing link not found")
 
 
 @router.get("/kit/{kit_id}", response_model=list[SharingLinkRead])
@@ -88,3 +100,61 @@ def deactivate_sharing_link(link_id: str, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(link)
     return link
+
+
+@router.delete("/workspace/link/{link_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_workspace_sharing_link(link_id: str, db: Session = Depends(get_db)):
+    """Delete a workspace sharing link"""
+    link = db.query(WorkspaceSharingLink).filter(WorkspaceSharingLink.id == link_id).first()
+    if not link:
+        raise HTTPException(status_code=404, detail="Sharing link not found")
+    
+    db.delete(link)
+    db.commit()
+    return None
+
+
+@router.patch("/workspace/link/{link_id}/deactivate", status_code=status.HTTP_200_OK)
+def deactivate_workspace_sharing_link(link_id: str, db: Session = Depends(get_db)):
+    """Deactivate a workspace sharing link"""
+    link = db.query(WorkspaceSharingLink).filter(WorkspaceSharingLink.id == link_id).first()
+    if not link:
+        raise HTTPException(status_code=404, detail="Sharing link not found")
+    
+    link.is_active = False
+    db.commit()
+    db.refresh(link)
+    return link
+
+
+@router.post("/workspace/{workspace_id}", response_model=WorkspaceSharingLinkRead, status_code=status.HTTP_201_CREATED)
+def create_workspace_sharing_link(workspace_id: str, link_data: SharingLinkCreate, db: Session = Depends(get_db)):
+    """Create a shareable link for a workspace"""
+    workspace = db.query(Workspace).filter(Workspace.id == workspace_id).first()
+    if not workspace:
+        raise HTTPException(status_code=404, detail="Workspace not found")
+    
+    expires_at = None
+    if link_data.expires_in_days:
+        expires_at = datetime.utcnow() + timedelta(days=link_data.expires_in_days)
+    
+    db_link = WorkspaceSharingLink(
+        workspace_id=workspace_id,
+        token=generate_token(),
+        expires_at=expires_at
+    )
+    
+    db.add(db_link)
+    db.commit()
+    db.refresh(db_link)
+    return db_link
+
+
+@router.get("/workspace/{workspace_id}", response_model=list[WorkspaceSharingLinkRead])
+def list_workspace_sharing_links(workspace_id: str, db: Session = Depends(get_db)):
+    """List all sharing links for a workspace"""
+    workspace = db.query(Workspace).filter(Workspace.id == workspace_id).first()
+    if not workspace:
+        raise HTTPException(status_code=404, detail="Workspace not found")
+    
+    return db.query(WorkspaceSharingLink).filter(WorkspaceSharingLink.workspace_id == workspace_id).all()

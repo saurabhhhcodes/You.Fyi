@@ -187,6 +187,12 @@ body {
   font-weight: 600;
 }
 
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px;
+}
+
 .content-scroll {
   flex: 1;
   overflow-y: auto;

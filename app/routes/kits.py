@@ -2,9 +2,34 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Kit, Asset, Workspace
-from app.schemas import KitCreate, KitUpdate, KitRead
+from app.schemas import KitCreate, KitUpdate, KitRead, KitMerge
 
 router = APIRouter(prefix="/kits", tags=["kits"])
+
+
+@router.post("/merge", status_code=status.HTTP_200_OK)
+def merge_kits(merge_data: KitMerge, db: Session = Depends(get_db)):
+    """Merge source kits into target kit"""
+    target = db.query(Kit).filter(Kit.id == merge_data.target_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="Target kit not found")
+    
+    source_kits = db.query(Kit).filter(Kit.id.in_(merge_data.source_ids)).all()
+    if not source_kits:
+        raise HTTPException(status_code=404, detail="Source kits not found")
+    
+    for source in source_kits:
+        # Add assets to target
+        for asset in source.assets:
+            if asset not in target.assets:
+                target.assets.append(asset)
+        
+        # Delete source
+        db.delete(source)
+    
+    db.commit()
+    db.refresh(target)
+    return {"message": "Merge successful"}
 
 
 @router.post("/{workspace_id}", response_model=KitRead, status_code=status.HTTP_201_CREATED)
@@ -75,3 +100,5 @@ def delete_kit(kit_id: str, db: Session = Depends(get_db)):
     db.delete(kit)
     db.commit()
     return None
+
+

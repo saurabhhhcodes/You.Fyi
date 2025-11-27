@@ -12,7 +12,7 @@ from pathlib import Path
 
 import os
 
-BASE_URL = os.getenv("API_URL", "http://localhost:8001")
+BASE_URL = "http://localhost:8002"
 TIMESTAMP = str(int(time.time()))
 
 class Colors:

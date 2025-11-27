@@ -698,6 +698,20 @@ function selectKit(k) {
   // Refresh Shared Links
   refreshSharedLinks(k.id);
 
+  // Populate Merge Dropdown
+  const select = el('merge-target-kit-select');
+  if (select) {
+    select.innerHTML = '<option value="">Select Target Kit...</option>';
+    state.kits.forEach(other => {
+      if (other.id !== k.id) {
+        const opt = document.createElement('option');
+        opt.value = other.id;
+        opt.textContent = other.name;
+        select.appendChild(opt);
+      }
+    });
+  }
+
   // Clear previous RAG results
   el('rag-result').classList.add('hidden');
   el('rag-result').textContent = '';
@@ -1105,14 +1119,129 @@ async function refreshSettings() {
     const ws = await res.json();
 
     // Update Slug
-    el('settings-ws-slug').value = ws.name; // Assuming name is slug for now, or description is display name
+    el('settings-ws-slug').value = ws.name;
 
     // Update Share Link
-    const link = `https://you.fyi/${ws.name}`;
-    el('share-workspace-link').value = link;
+    const linkRes = await fetch(`/sharing-links/workspace/${state.workspaceId}`);
+    if (linkRes.ok) {
+      const links = await linkRes.json();
+      const activeLink = links.find(l => l.is_active);
+      if (activeLink) {
+        el('share-workspace-link').value = `${window.location.origin}/ui/shared.html?token=${activeLink.token}`;
+        el('copy-workspace-link').textContent = 'Copy Link';
+        el('copy-workspace-link').onclick = () => {
+          navigator.clipboard.writeText(el('share-workspace-link').value);
+          showToast('Copied', 'Link copied', 'success');
+        };
+      } else {
+        el('share-workspace-link').value = '';
+        el('copy-workspace-link').textContent = 'Generate Link';
+        el('copy-workspace-link').onclick = createWorkspaceShare;
+      }
+    }
+
+    // Populate Merge Dropdown
+    const allWsRes = await fetch('/workspaces/');
+    if (allWsRes.ok) {
+      const allWs = await allWsRes.json();
+      const select = el('merge-target-ws-select');
+      select.innerHTML = '<option value="">Select Target Workspace...</option>';
+      allWs.forEach(w => {
+        if (w.id !== state.workspaceId) {
+          const opt = document.createElement('option');
+          opt.value = w.id;
+          opt.textContent = w.name;
+          select.appendChild(opt);
+        }
+      });
+    }
 
   } catch (e) {
     console.error('Failed to refresh settings:', e);
+  }
+}
+
+async function createWorkspaceShare() {
+  const btn = el('copy-workspace-link');
+  setLoading(btn, true, 'Generating...');
+  try {
+    const res = await fetch(`/sharing-links/workspace/${state.workspaceId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ expires_in_days: 30 })
+    });
+    if (res.ok) {
+      await refreshSettings();
+      showToast('Success', 'Share link created', 'success');
+    }
+  } catch (e) {
+    showToast('Error', 'Failed to create link', 'error');
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+async function mergeWorkspaces() {
+  const targetId = el('merge-target-ws-select').value;
+  if (!targetId) { showToast('Error', 'Select a target workspace', 'error'); return; }
+
+  if (!confirm('Are you sure? This workspace will be deleted and all content moved.')) return;
+
+  const btn = el('merge-ws-btn');
+  setLoading(btn, true, 'Merging...');
+
+  try {
+    const res = await fetch('/workspaces/merge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source_id: state.workspaceId, target_id: targetId })
+    });
+
+    if (res.ok) {
+      showToast('Success', 'Workspace merged', 'success');
+      state.workspaceId = targetId;
+      try { localStorage.setItem('youfyi_workspace', targetId) } catch (e) { }
+      await refreshWorkspaces();
+      switchView('view-workspaces');
+    } else {
+      showToast('Error', 'Merge failed', 'error');
+    }
+  } catch (e) {
+    showToast('Error', e.message, 'error');
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+async function mergeKits() {
+  const targetId = el('merge-target-kit-select').value;
+  if (!targetId) { showToast('Error', 'Select a target kit', 'error'); return; }
+
+  if (!confirm('Are you sure? This kit will be deleted and assets moved.')) return;
+
+  const btn = el('merge-kit-btn');
+  setLoading(btn, true, 'Merging...');
+
+  try {
+    const res = await fetch('/kits/merge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source_ids: [state.lastKitId], target_id: targetId })
+    });
+
+    if (res.ok) {
+      showToast('Success', 'Kit merged', 'success');
+      state.lastKitId = null;
+      el('kit-details-content').classList.add('hidden');
+      el('kit-details-empty').style.display = 'block';
+      await refreshKits();
+    } else {
+      showToast('Error', 'Merge failed', 'error');
+    }
+  } catch (e) {
+    showToast('Error', e.message, 'error');
+  } finally {
+    setLoading(btn, false);
   }
 }
 
@@ -1170,10 +1299,13 @@ window.addEventListener('load', async () => {
   el('nav-kits').addEventListener('click', () => switchView('view-kits'));
   el('nav-settings').addEventListener('click', () => switchView('view-settings'));
   el('nav-about').addEventListener('click', () => switchView('view-about'));
+  el('nav-home').addEventListener('click', () => switchView('view-workspaces'));
 
   // Modal Triggers
   el('btn-new-asset').addEventListener('click', () => openModal('modal-create-asset'));
   el('save-kit-details-btn').addEventListener('click', saveKitDetails);
+  el('merge-ws-btn').addEventListener('click', mergeWorkspaces);
+  el('merge-kit-btn').addEventListener('click', mergeKits);
   el('create-kit').addEventListener('click', () => openModal('modal-create-kit'));
   el('create-ws').addEventListener('click', () => openModal('modal-create-workspace'));
 
@@ -1224,14 +1356,15 @@ window.addEventListener('load', async () => {
   el('run-rag').addEventListener('click', runRag);
 
   // Asset Actions
+  // Asset Actions
   el('add-to-kit-btn').addEventListener('click', addSelectedToKit);
-  el('share-kit-btn').addEventListener('click', createShare);
+  // el('share-kit-btn').addEventListener('click', createShare); // Removed
 
   // Kit Details Actions
-  const shareKitDetailsBtn = el('share-kit-details-btn');
-  if (shareKitDetailsBtn) {
-    shareKitDetailsBtn.addEventListener('click', createShare);
-  }
+  // const shareKitDetailsBtn = el('share-kit-details-btn');
+  // if (shareKitDetailsBtn) {
+  //   shareKitDetailsBtn.addEventListener('click', createShare);
+  // }
 
   // Select All
   el('select-all-assets').addEventListener('change', (e) => {
